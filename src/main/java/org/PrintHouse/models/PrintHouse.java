@@ -1,16 +1,23 @@
 package org.PrintHouse.models;
 
+import org.PrintHouse.models.Contracts.IEmployable;
+import org.PrintHouse.models.Contracts.IPrintable;
+import org.PrintHouse.services.IPrintingService;
+import org.PrintHouse.services.ISalaryService;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PrintHouse {
     private final List<IEmployable> employees;
-    private final List<PrintedItem> items;
+    private final IPrintingService printingService;
+    private final ISalaryService salaryService;
 
-    public PrintHouse() {
-        employees = new ArrayList<IEmployable>();
-        items = new ArrayList<PrintedItem>();
+    public PrintHouse(IPrintingService printingService, ISalaryService salaryService) {
+        this.printingService = printingService;
+        this.salaryService = salaryService;
+        this.employees = new ArrayList<>();
     }
 
     public void addEmployee(IEmployable employee) {
@@ -24,14 +31,16 @@ public class PrintHouse {
     public List<IEmployable> getEmployees() {
         return employees;
     }
-// expense
-    public BigDecimal getTotalSalaries(){
-        return employees.stream()
-                .map(x -> x.getSalary())
-                .reduce(BigDecimal.ZERO, (acc, salary) -> acc.add(salary));
+
+    public void printItem(IPrintable item, int copies, boolean isColor) {
+        printingService.print(item, copies, isColor);
     }
 
-//    public BigDecimal getTotal
-//
-//            //re venue
+    public BigDecimal calculateSalaries() {
+        return salaryService.getTotalSalaries();
+    }
+
+    public BigDecimal calculateTotalExpenses() {
+        return salaryService.getTotalSalaries().add(printingService.calculatePaperCost(null, 0));
+    }          //re venue
 }

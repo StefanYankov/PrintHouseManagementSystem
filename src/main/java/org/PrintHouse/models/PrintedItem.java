@@ -4,9 +4,9 @@ import org.PrintHouse.exceptions.InvalidPageCountException;
 import org.PrintHouse.exceptions.InvalidTitleException;
 import org.PrintHouse.globalconstants.ExceptionMessages;
 import org.PrintHouse.globalconstants.ModelsConstants;
+import org.PrintHouse.models.Contracts.IPrintable;
 
-public class PrintedItem {
-    // private int id; // for persistent layer
+public class PrintedItem implements IPrintable {
     private String title;
     private int pageCount;
     private PageSize pageSize;
@@ -17,7 +17,9 @@ public class PrintedItem {
         this.pageSize = pageSize;
     }
 
+    @Override
     public String getTitle() {
+
         return title;
     }
 
@@ -35,6 +37,7 @@ public class PrintedItem {
         this.title = title;
     }
 
+    @Override
     public int getPageCount() {
         return pageCount;
     }
@@ -46,6 +49,7 @@ public class PrintedItem {
         this.pageCount = pageCount;
     }
 
+    @Override
     public PageSize getPageSize() {
         return pageSize;
     }
