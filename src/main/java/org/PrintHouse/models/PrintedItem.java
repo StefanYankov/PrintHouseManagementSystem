@@ -1,60 +1,54 @@
 package org.PrintHouse.models;
 
-import org.PrintHouse.exceptions.InvalidPageCountException;
-import org.PrintHouse.exceptions.InvalidTitleException;
-import org.PrintHouse.globalconstants.ExceptionMessages;
-import org.PrintHouse.globalconstants.ModelsConstants;
-import org.PrintHouse.models.Contracts.IPrintable;
+import java.math.BigDecimal;
 
-public class PrintedItem implements IPrintable {
-    private String title;
-    private int pageCount;
-    private PageSize pageSize;
+public class PrintedItem {
+    private Edition edition;
+    private PaperType paperType;
+    private BigDecimal price;
 
-    public PrintedItem(String title, int pageCount, PageSize pageSize) {
-        this.setTitle(title);
-        this.setPageCount(pageCount);
-        this.pageSize = pageSize;
+
+    public PrintedItem(Edition edition, PaperType paperType, BigDecimal price ) {
+        this.edition = edition;
+        this.paperType = paperType;
+        this.price = price;
     }
 
-    @Override
-    public String getTitle() {
-
-        return title;
+    public Edition getEdition() {
+        return edition;
     }
 
-    private void setTitle(String title) {
-
-        if (title == null || title.trim().isEmpty()) {
-            throw new InvalidTitleException(ExceptionMessages.TITLE_NULL_OR_EMPTY);
-        }
-        if (title.length() < ModelsConstants.MIN_TITLE_LENGTH) {
-            throw new InvalidTitleException(String.format(ExceptionMessages.TITLE_TOO_SHORT, ModelsConstants.MIN_TITLE_LENGTH));
-        }
-        if (title.length() > ModelsConstants.MAX_TITLE_LENGTH) {
-            throw new InvalidTitleException(String.format(ExceptionMessages.TITLE_TOO_LONG, ModelsConstants.MAX_TITLE_LENGTH));
-        }
-        this.title = title;
+    public void setEdition(Edition edition) {
+        this.edition = edition;
     }
 
-    @Override
-    public int getPageCount() {
-        return pageCount;
+    public PaperType getPaperType() {
+        return paperType;
     }
 
-    private void setPageCount(int pageCount) {
-        if (pageCount <= 0) {
-            throw new InvalidPageCountException(ExceptionMessages.INVALID_PAGE_COUNT);
-        }
-        this.pageCount = pageCount;
+    public void setPaperType(PaperType paperType) {
+        this.paperType = paperType;
     }
 
-    @Override
-    public PageSize getPageSize() {
-        return pageSize;
+    public BigDecimal getCost() {
+        var pages = this.edition.getNumberOfPages();
+        var pageSize = this.edition.getSize();
+        Enum<?> enumValue = this.paperType;
+        var costForSmallest = this.paperType.getCost(enumValue);
+
+        return costForSmallest.multiply(BigDecimal.valueOf(pages));
     }
 
-    private void setPageSize(PageSize pageSize) {
-        this.pageSize = pageSize;
+    public int getNumberOfPages(){
+        return this.edition.getNumberOfPages();
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        // validation can be added if price is below the cost
+        this.price = price;
     }
 }

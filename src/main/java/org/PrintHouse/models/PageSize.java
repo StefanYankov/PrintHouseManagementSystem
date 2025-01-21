@@ -1,5 +1,7 @@
 package org.PrintHouse.models;
 
+import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
+
 import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.Map;
@@ -15,6 +17,7 @@ public class PageSize<T extends Enum<T>> {
     private final Map<T, BigDecimal> pageSizesCost;
     // increment percentage same for all sizes above the first one
     private static BigDecimal incrementPercentage;
+    private BigDecimal baseCost;
 
     /**
      * Constructs a new {@code PageSize} instance.
@@ -24,6 +27,7 @@ public class PageSize<T extends Enum<T>> {
      * @throws IllegalArgumentException If {@code baseCost} is null or less than or equal to zero.
      */
     public PageSize(Class<T> enumType, BigDecimal baseCost) {
+        this.baseCost = baseCost;
         pageSizesCost = new EnumMap<>(enumType);
 
         // Initialize the map with null values for all enum constants
@@ -44,7 +48,7 @@ public class PageSize<T extends Enum<T>> {
     // option to set the increment % it.
     public static void setIncrementalPercentage(BigDecimal incrementalPercentage) {
         if (incrementalPercentage == null || incrementalPercentage.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Incremental percentage must be greater than zero");
+            throw new IllegalArgumentException(ExceptionMessages.INVALID_PAGE_SIZE_INCREMENTAL_PERCENTAGE);
         }
         // Convert percentage to decimal if it is greater than 1
         if (incrementalPercentage.compareTo(BigDecimal.ONE) > 0) {
@@ -64,30 +68,7 @@ public class PageSize<T extends Enum<T>> {
             // TODO: custom error handling
             throw new IllegalArgumentException("Base cost must be greater than zero");
         }
-
         calculateCosts(baseCost);
-    }
-
-    /**
-     * Calculates the cost for each size, starting from the smallest, based on the base cost and
-     * the incremental percentage.
-     *
-     * @param baseCost The base cost for the smallest size.
-     * @throws IllegalStateException If the map of page sizes is empty.
-     */
-    private void calculateCosts(BigDecimal baseCost) {
-        if (pageSizesCost.isEmpty()) {
-            // TODO: custom error handling
-            throw new IllegalStateException("The pageSizesCost map is empty. Add sizes before setting costs.");
-        }
-
-        BigDecimal currentCost = baseCost;
-
-        // Traverse the map in the order of its keys
-        for (T size : pageSizesCost.keySet()) {
-            pageSizesCost.put(size, currentCost);
-            currentCost = currentCost.multiply(BigDecimal.ONE.add(incrementPercentage));
-        }
     }
 
     /**
@@ -114,10 +95,35 @@ public class PageSize<T extends Enum<T>> {
         return new EnumMap<>(pageSizesCost);
     }
 
+    public BigDecimal getBaseCost() {
+        return this.baseCost;
+    }
+
     @Override
     public String toString() {
         return "PageSize{" +
                 "pageSizesCost=" + pageSizesCost +
                 '}';
+    }
+
+    /**
+     * Calculates the cost for each size, starting from the smallest, based on the base cost and
+     * the incremental percentage.
+     *
+     * @param baseCost The base cost for the smallest size.
+     * @throws IllegalStateException If the map of page sizes is empty.
+     */
+    private void calculateCosts(BigDecimal baseCost) {
+        if (pageSizesCost.isEmpty()) {
+            // TODO: custom error handling
+            throw new IllegalStateException("The pageSizesCost map is empty. Add sizes before setting costs.");
+        }
+
+        BigDecimal currentCost = baseCost;
+
+        for (T size : pageSizesCost.keySet()) {
+            pageSizesCost.put(size, currentCost);
+            currentCost = currentCost.multiply(BigDecimal.ONE.add(incrementPercentage));
+        }
     }
 }

@@ -4,39 +4,33 @@ import org.PrintHouse.models.Contracts.IEmployable;
 
 import java.math.BigDecimal;
 
-public class Employee implements IEmployable {
+//  Single Table Inheritance will be used so we don't have a new table for every derived class
 
-    private static BigDecimal basePay;
-    private EmployeeType employeeType;
+public class Employee<T> implements IEmployable<T>  {
+    private BigDecimal baseSalary; // per specification this could be dropped as the base salary will be the same for every employee
+    private T employeeType;
 
-    public Employee(EmployeeType employeeType) {
+    public Employee() {}
+    public Employee(T employeeType) {
         this.employeeType = employeeType;
     }
 
-    public static BigDecimal getBasePay() {
-        return basePay;
-    }
-
-    public static void setBasePay(BigDecimal basePay) {
-        // TODO: change c
-        if (basePay.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("BasePay must be greater than zero");
-        }
-
-        if (basePay.compareTo(BigDecimal.ZERO) == 0) {
-            throw new IllegalArgumentException("BasePay must be greater than zero");
-        }
-
-        Employee.basePay = basePay;
-    }
-
-    public EmployeeType getEmployeeType() {
-        return employeeType;
+    @Override
+    public BigDecimal getBaseSalary() {
+        return baseSalary;
     }
 
     @Override
-    public BigDecimal getSalary() {
-        BigDecimal meritSalary = Employee.getBasePay().multiply(employeeType.getSalaryModifierInPercentage());
-        return Employee.getBasePay().add(meritSalary);
+    public void setBaseSalary(BigDecimal baseSalary) {
+        this.baseSalary = baseSalary;
+    }
+
+    @Override
+    public T getEmployeeType() {
+        return employeeType;
+    }
+
+    public void setEmployeeType(T employeeType) {
+        this.employeeType = employeeType;
     }
 }

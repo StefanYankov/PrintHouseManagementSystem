@@ -1,4 +1,4 @@
-package org.PrintHouse.globalconstants;
+package org.PrintHouse.utilities.globalconstants;
 
 public class ExceptionMessages {
 
@@ -8,4 +8,6 @@ public class ExceptionMessages {
     public static final String TITLE_TOO_SHORT = "Title must be at least {0} characters long.";
     public static final String TITLE_TOO_LONG = "Title cannot be longer than {0} characters.";
     public static final String INVALID_PAGE_SIZE = "Page size {0} is invalid.";
+    public static final String INVALID_PAGE_SIZE_INCREMENTAL_PERCENTAGE = "Incremental percentage must be greater than zero";
+    public static final String BASE_PAY_GREATER_THAN_ZERO = "Base pay must be greater than zero.";
 }

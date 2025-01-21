@@ -1,55 +1,27 @@
 package org.PrintHouse.models;
 
-import org.PrintHouse.models.Contracts.IPaperTypable;
+import org.PrintHouse.models.Contracts.IPaperTypes;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PaperType implements IPaperTypable {
+public enum PaperType implements IPaperTypes {
+    STANDARD, GLOSSY, NEWSPAPER;
 
-    private final Map<String, BigDecimal> paperCosts;
+    private final Map<PaperType, BigDecimal> paperCosts = new HashMap<>();
 
-    public PaperType() {
-        paperCosts = new HashMap<String, BigDecimal>();
-    }
-
-    public PaperType(Map<String, BigDecimal> paperCosts) {
-        this.validateCosts(paperCosts);
-        this.paperCosts = new HashMap<>(paperCosts);
-    }
-
-    @Override
-    public void addPaperCost(String paperType, BigDecimal cost) {
-        paperCosts.put(paperType, cost);
+    static {
+        STANDARD.paperCosts.put(STANDARD, BigDecimal.valueOf(100));
+        GLOSSY.paperCosts.put(GLOSSY, BigDecimal.valueOf(120));
+        NEWSPAPER.paperCosts.put(NEWSPAPER, BigDecimal.valueOf(80));
     }
 
     @Override
-    public void removePaperCost(String paperType) {
-        paperCosts.remove(paperType);
-    }
-
-    @Override
-    public BigDecimal getPaperCost(String paperType) {
-
-        if (!paperCosts.containsKey(paperType)) {
-            //TODO: custom exception
-            throw new IllegalArgumentException("Paper type " + paperType + " does not exist");
+    public BigDecimal getCost(Enum<?> type) {
+        if (type instanceof PaperType) {
+            return paperCosts.get(type);
         }
-        return paperCosts.get(paperType);
-    }
-
-    // Utility methods
-    private void validateCost(BigDecimal cost) {
-        if (cost == null || cost.compareTo(BigDecimal.ZERO) <= 0) {
-            // TODO: add custom exception handling
-            throw new IllegalArgumentException("cost should be greater than zero");
-        }
-    }
-
-    private void validateCosts(Map<String, BigDecimal> costs) {
-        for (Map.Entry<String, BigDecimal> entry : paperCosts.entrySet()) {
-            validateCost(entry.getValue());
-        }
+        return BigDecimal.ZERO;
     }
 }
