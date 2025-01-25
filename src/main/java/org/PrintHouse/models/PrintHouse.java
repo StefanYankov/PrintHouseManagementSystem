@@ -7,26 +7,61 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a printing house with employees, printing presses, and cost/revenue management.
+ *
+ * @param <T> The enum type representing employee roles.
+ * @param <P> The enum type representing paper types, must implement {@link IPaperTypes}.
+ */
 public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
     private final List<IEmployable<T>> employees;
     private final List<PrintingPress> printingPressList;
+
+    /**
+     * Percentage increment for employee salaries based on management bonus or performance.
+     */
     private BigDecimal employeeSalaryIncrementPercentage;
+
+    /**
+     * Percentage increment for paper costs based on size or type.
+     */
     private BigDecimal paperIncrementPercentage;
+    /**
+     * Roles eligible for salary increments.
+     */
+    private final List<T> incrementEligibleRoles;
     private BigDecimal baseSalary;
+
+    /**
+     * Target revenue for roles eligible for salary increments to have the salary incremented.
+     */
     private BigDecimal revenueTarget;
     private int salesDiscountCount;
     private BigDecimal salesDiscountPercentage;
 
-    public PrintHouse(BigDecimal managementBonusPercentage,
+    /**
+     * Constructs a new PrintHouse instance with specified parameters.
+     *
+     * @param salaryIncrementBonusPercentage  Percentage increment for bonuses eligible roles.
+     * @param paperIncrementPercentage   Percentage increment for paper costs.
+     * @param baseSalary                 Base salary for employees.
+     * @param incrementEligibleRoles     Roles eligible for salary increments.
+     * @param revenueTarget              Revenue target for the printing house.
+     * @param discountCount              Threshold count for sales discounts.
+     * @param discountPercentage         Percentage discount applied to sales above the threshold.
+     */
+    public PrintHouse(BigDecimal salaryIncrementBonusPercentage,
                       BigDecimal paperIncrementPercentage,
                       BigDecimal baseSalary,
+                      List<T> incrementEligibleRoles,
                       BigDecimal revenueTarget,
                       int discountCount,
                       BigDecimal discountPercentage) {
         this.employees = new ArrayList<IEmployable<T>>();
         this.printingPressList = new ArrayList<PrintingPress>();
-        this.employeeSalaryIncrementPercentage = managementBonusPercentage;
+        this.employeeSalaryIncrementPercentage = salaryIncrementBonusPercentage;
         this.baseSalary = baseSalary;
+        this.incrementEligibleRoles = incrementEligibleRoles;
         this.paperIncrementPercentage = paperIncrementPercentage;
         this.revenueTarget = revenueTarget;
         this.salesDiscountCount = discountCount;
@@ -78,6 +113,11 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
         return baseSalary;
     }
 
+    /**
+     * Calculates the total cost of printed items across all printing presses.
+     *
+     * @return Total cost of printed items.
+     */
     public BigDecimal getTotalCostForPrint() {
         BigDecimal totalCost = BigDecimal.ZERO;
         var printingPressList = this.getPrintingPressList();
@@ -103,7 +143,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
         for (var item : items.keySet()) {
             var size = item.getEdition().getSize();
             var type = item.getPaperType();
-            var pageCount = item.getNumberOfPages();
+            var pageCount = item.getEdition().getNumberOfPages();
             var currentItemCost = this.getCostForSpecificPageSizeAndType((P) type, (T) size, pageCount);
             var copies = BigDecimal.valueOf(items.get(item));
             totalCost = totalCost.add(currentItemCost).multiply(copies);
@@ -123,8 +163,17 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
     public BigDecimal getTotalCostForEmployees() {
 
         if (this.revenueTarget.compareTo(this.getTotalRevenue()) > 0) {
-            return this.getTotalCostForEmployees((T) EmployeeType.MANAGER);
+            BigDecimal output = this.getEmployees().stream()
+                    .map(x -> {
+                        T role = x.getEmployeeType();
+                        BigDecimal salary = x.getBaseSalary();
+                        if (this.incrementEligibleRoles.contains(role)) {
+                            return this.applySalaryIncrement(salary, this.employeeSalaryIncrementPercentage);
+                        }
+                        return salary;
 
+                    }).reduce(BigDecimal.ZERO, (acc, salary) -> acc.add(salary));
+            return output;
         }
 
         return this.getEmployees()
@@ -135,11 +184,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
 
     public BigDecimal getTotalRevenue() {
 
-        var collection = this.printingPressList.stream()
-                .flatMap(pp -> pp.getPrintedItems().entrySet().stream())
-                .toList();
-
-        var output = this.printingPressList.stream()
+        BigDecimal output = this.printingPressList.stream()
                 .flatMap(pp -> pp.getPrintedItems().entrySet().stream())
                 .map(printedItemWithCount -> {
                     PrintedItem printedItem = printedItemWithCount.getKey();
@@ -206,38 +251,9 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
         throw new IllegalArgumentException("Requested size " + requestedSize + " is not part of the enum.");
     }
 
-    /**
-     * Calculates the total cost of all employees, adjusting their salaries based on the provided employee type.
-     *
-     * @param employeeType the employee type used to determine salary adjustments
-     * @return the total cost of all employees
-     */
-    private BigDecimal getTotalCostForEmployees(T employeeType) {
-        return this.getEmployees()
-                .stream()
-                .map(employee -> adjustSalaryBasedOnFilter(employee, employeeType))
-                .reduce(BigDecimal.ZERO, (acc, salary) -> acc.add(salary));
-    }
-
     // converts raw percentage - for example 10 - to an actual percentage that can be used in calculations - 10/100
     private BigDecimal incrementPercentageInPercent(BigDecimal paperIncrementPercentage) {
         return paperIncrementPercentage.divide(BigDecimal.valueOf(100));
-    }
-
-    /**
-     * Adjusts the salary of an employee based on the given employee type.
-     *
-     * @param employee     the employee whose salary is being adjusted
-     * @param employeeType the type of employee used for determining salary adjustments
-     * @return the adjusted salary of the employee
-     */
-    private BigDecimal adjustSalaryBasedOnFilter(IEmployable<T> employee, T employeeType) {
-        // Apply the increment if the employee matches the specified type
-        if (employee.getEmployeeType().equals(employeeType)) {
-            return applySalaryIncrement(employee.getBaseSalary(), this.getEmployeeSalaryIncrementPercentage());
-        }
-        // Return the base salary if no adjustment is needed
-        return employee.getBaseSalary();
     }
 
     /**

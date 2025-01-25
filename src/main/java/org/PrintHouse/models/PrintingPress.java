@@ -67,7 +67,7 @@ public class PrintingPress {
             throw new IllegalArgumentException("Incompatible color type");
         }
 
-        if (printedItem.getNumberOfPages() > this.getCurrentPaperLoad()) {
+        if (printedItem.getEdition().getNumberOfPages() > this.getCurrentPaperLoad()) {
             throw new IllegalArgumentException("insufficient paper load");
         }
 
@@ -78,7 +78,7 @@ public class PrintingPress {
         return this.getPrintedItems()
                 .entrySet()
                 .stream()
-                .mapToLong(x -> x.getKey().getNumberOfPages() * x.getValue())
+                .mapToLong(x -> x.getKey().getEdition().getNumberOfPages() * x.getValue())
                 .sum();
     }
 }

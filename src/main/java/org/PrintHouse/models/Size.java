@@ -1,6 +1,6 @@
 package org.PrintHouse.models;
 
-public enum Sizes {
+public enum Size {
     A5,
     A4,
     A3,
