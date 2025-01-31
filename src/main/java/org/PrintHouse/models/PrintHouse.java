@@ -1,35 +1,33 @@
 package org.PrintHouse.models;
 
-import org.PrintHouse.models.Contracts.IEmployable;
-import org.PrintHouse.models.Contracts.IPaperTypes;
+import org.PrintHouse.models.Contracts.*;
+import org.PrintHouse.utilities.exceptions.*;
+import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a printing house with employees, printing presses, and cost/revenue management.
+ * The PrintHouse class represents a printing business with employees, printing presses, and configurable pricing and salary structures.
  *
- * @param <T> The enum type representing employee roles.
- * @param <P> The enum type representing paper types, must implement {@link IPaperTypes}.
+ * @param <T> Employee role type, extending Enum to ensure predefined roles.
+ * @param <P> Paper type, extending Enum and implementing IPaperTypes to represent various paper types.
+ * @param <S> Paper size type, extending Enum to define supported sizes for printing.
  */
-public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
+public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintHouse<T, P, S>  {
     private final List<IEmployable<T>> employees;
-    private final List<PrintingPress> printingPressList;
+    private final List<IPrintingPress<P, S>> printingPressList;
 
     /**
      * Percentage increment for employee salaries based on management bonus or performance.
      */
     private BigDecimal employeeSalaryIncrementPercentage;
-
-    /**
-     * Percentage increment for paper costs based on size or type.
-     */
+    // Percentage increment for paper costs based on size or type.
     private BigDecimal paperIncrementPercentage;
-    /**
-     * Roles eligible for salary increments.
-     */
-    private final List<T> incrementEligibleRoles;
+    // Roles eligible for salary increments.
+    private List<T> incrementEligibleRoles;
     private BigDecimal baseSalary;
 
     /**
@@ -40,15 +38,15 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
     private BigDecimal salesDiscountPercentage;
 
     /**
-     * Constructs a new PrintHouse instance with specified parameters.
+     * Constructs a PrintHouse instance with the specified configuration.
      *
-     * @param salaryIncrementBonusPercentage  Percentage increment for bonuses eligible roles.
-     * @param paperIncrementPercentage   Percentage increment for paper costs.
-     * @param baseSalary                 Base salary for employees.
-     * @param incrementEligibleRoles     Roles eligible for salary increments.
-     * @param revenueTarget              Revenue target for the printing house.
-     * @param discountCount              Threshold count for sales discounts.
-     * @param discountPercentage         Percentage discount applied to sales above the threshold.
+     * @param salaryIncrementBonusPercentage The percentage increment for employee salaries.
+     * @param paperIncrementPercentage       The percentage increment for paper costs.
+     * @param baseSalary                     The base salary for employees.
+     * @param incrementEligibleRoles         The list of roles eligible for salary increments.
+     * @param revenueTarget                  The revenue target for the print house.
+     * @param discountCount                  The number of discounts allowed for sales promotions.
+     * @param discountPercentage             The percentage discount applied during sales promotions.
      */
     public PrintHouse(BigDecimal salaryIncrementBonusPercentage,
                       BigDecimal paperIncrementPercentage,
@@ -58,59 +56,181 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
                       int discountCount,
                       BigDecimal discountPercentage) {
         this.employees = new ArrayList<IEmployable<T>>();
-        this.printingPressList = new ArrayList<PrintingPress>();
-        this.employeeSalaryIncrementPercentage = salaryIncrementBonusPercentage;
-        this.baseSalary = baseSalary;
-        this.incrementEligibleRoles = incrementEligibleRoles;
-        this.paperIncrementPercentage = paperIncrementPercentage;
-        this.revenueTarget = revenueTarget;
-        this.salesDiscountCount = discountCount;
-        this.salesDiscountPercentage = discountPercentage;
+        this.printingPressList = new ArrayList<IPrintingPress<P, S>>();
+        this.setEmployeeSalaryIncrementPercentage(salaryIncrementBonusPercentage);
+        this.setBaseSalary(baseSalary);
+        this.setIncrementEligibleRoles(incrementEligibleRoles);
+        this.setPaperIncrementPercentage(paperIncrementPercentage);
+        this.setRevenueTarget(revenueTarget);
+        this.setSalesDiscountCount(discountCount);
+        this.setSalesDiscountPercentage(discountPercentage);
     }
 
+    public PrintHouse(BigDecimal salaryIncrementBonusPercentage,
+                      BigDecimal paperIncrementPercentage,
+                      BigDecimal baseSalary,
+                      BigDecimal revenueTarget,
+                      int discountCount,
+                      BigDecimal discountPercentage) {
+        this.incrementEligibleRoles = new ArrayList<>();
+        this.employees = new ArrayList<IEmployable<T>>();
+        this.printingPressList = new ArrayList<IPrintingPress<P, S>>();
+        this.setEmployeeSalaryIncrementPercentage(salaryIncrementBonusPercentage);
+        this.setBaseSalary(baseSalary);
+        this.setIncrementEligibleRoles(incrementEligibleRoles);
+        this.setPaperIncrementPercentage(paperIncrementPercentage);
+        this.setRevenueTarget(revenueTarget);
+        this.setSalesDiscountCount(discountCount);
+        this.setSalesDiscountPercentage(discountPercentage);
+    }
+
+    @Override
     public void addEmployee(IEmployable<T> employee) {
+
+        if (employee == null){
+            throw new InvalidEmployeeException(ExceptionMessages.EMPLOYEE_CANNOT_BE_NULL);
+        }
         employee.setBaseSalary(this.baseSalary);
         employees.add(employee);
     }
 
+    @Override
     public void removeEmployee(IEmployable<T> employee) {
         employees.remove(employee);
     }
 
-    public void addPrintingPress(PrintingPress printingPress) {
+    @Override
+    public void addPrintingPress(IPrintingPress<P, S> printingPress) {
         printingPressList.add(printingPress);
     }
 
-    public void removePrintingPress(PrintingPress printingPress) {
+    @Override
+    public void removePrintingPress(IPrintingPress<P, S> printingPress) {
         printingPressList.remove(printingPress);
     }
 
+    @Override
     public List<IEmployable<T>> getEmployees() {
         return employees;
     }
 
-    public List<PrintingPress> getPrintingPressList() {
+    @Override
+    public List<IPrintingPress<P, S>> getPrintingPressList() {
         return printingPressList;
     }
 
+    @Override
     public BigDecimal getPaperIncrementPercentage() {
         return paperIncrementPercentage;
     }
 
+    @Override
     public void setPaperIncrementPercentage(BigDecimal paperIncrementPercentage) {
+        if (paperIncrementPercentage == null) {
+            throw new InvalidIncrementPercentage(ExceptionMessages.PAPER_INCREMENT_PERCENTAGE_CANNOT_BE_NULL);
+        }
+        if (paperIncrementPercentage.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidIncrementPercentage(ExceptionMessages.PAPER_INCREMENT_PERCENTAGE_CANNOT_BE_NEGATIVE_NUMBER);
+        }
         this.paperIncrementPercentage = paperIncrementPercentage;
     }
 
+    @Override
     public BigDecimal getEmployeeSalaryIncrementPercentage() {
         return employeeSalaryIncrementPercentage;
     }
 
+    @Override
     public void setEmployeeSalaryIncrementPercentage(BigDecimal employeeSalaryIncrementPercentage) {
+        if (employeeSalaryIncrementPercentage == null) {
+            throw new InvalidIncrementPercentage(ExceptionMessages.EMPLOYEE_SALARY_INCREMENT_PERCENTAGE_CANNOT_BE_NULL);
+        }
+
+        if (employeeSalaryIncrementPercentage.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidIncrementPercentage(ExceptionMessages.EMPLOYEE_SALARY_INCREMENT_PERCENTAGE_CANNOT_BE_A_NEGATIVE_NUMBER);
+        }
+
         this.employeeSalaryIncrementPercentage = employeeSalaryIncrementPercentage;
     }
 
+    @Override
     public BigDecimal getBaseSalary() {
         return baseSalary;
+    }
+
+    @Override
+    public void setBaseSalary(BigDecimal baseSalary) {
+        if (baseSalary == null) {
+            throw new InvalidSalaryException(ExceptionMessages.BASE_SALARY_CANNOT_BE_NULL);
+        }
+
+        if (baseSalary.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidSalaryException(ExceptionMessages.BASE_SALARY_CANNOT_BE_A_NEGATIVE_NUMBER);
+        }
+        this.baseSalary = baseSalary;
+    }
+
+    @Override
+    public List<T> getIncrementEligibleRoles() {
+        return incrementEligibleRoles;
+    }
+
+    @Override
+    public void setIncrementEligibleRoles(List<T> incrementEligibleRoles) {
+        if (incrementEligibleRoles == null) {
+            throw new InvalidIncrementEligibleRoles(ExceptionMessages.INCREMENT_ELIGIBLE_ROLES_CANNOT_BE_NULL);
+        }
+        this.incrementEligibleRoles = incrementEligibleRoles;
+    }
+
+    @Override
+    public BigDecimal getRevenueTarget() {
+        return revenueTarget;
+    }
+
+    @Override
+    public void setRevenueTarget(BigDecimal revenueTarget) {
+        if (revenueTarget == null) {
+            throw new InvalidRevenueException(ExceptionMessages.REVENUE_CANNOT_BE_NULL);
+        }
+
+        if (revenueTarget.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidRevenueException(ExceptionMessages.REVENUE_CANNOT_BE_A_NEGATIVE_NUMBER);
+        }
+
+        this.revenueTarget = revenueTarget;
+    }
+
+    @Override
+    public int getSalesDiscountCount() {
+        return salesDiscountCount;
+    }
+
+    @Override
+    public void setSalesDiscountCount(int salesDiscountCount) {
+
+        if (salesDiscountCount < 0) {
+            throw new InvalidSalesCountException(ExceptionMessages.SALES_COUNT_CANNOT_BE_A_NEGATIVE_NUMBER);
+        }
+
+        this.salesDiscountCount = salesDiscountCount;
+    }
+
+    @Override
+    public BigDecimal getSalesDiscountPercentage() {
+        return salesDiscountPercentage;
+    }
+
+    @Override
+    public void setSalesDiscountPercentage(BigDecimal salesDiscountPercentage) {
+        if (salesDiscountPercentage == null) {
+            throw new InvalidRevenueException(ExceptionMessages.SALES_DISCOUNT_PERCENTAGE_CANNOT_BE_NULL);
+        }
+
+        if (salesDiscountPercentage.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidRevenueException(ExceptionMessages.REVENUE_CANNOT_BE_A_NEGATIVE_NUMBER);
+        }
+        this.salesDiscountPercentage = salesDiscountPercentage;
     }
 
     /**
@@ -122,20 +242,22 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
         BigDecimal totalCost = BigDecimal.ZERO;
         var printingPressList = this.getPrintingPressList();
 
-        for (PrintingPress printingPress : printingPressList) {
+        for (IPrintingPress<P, S> printingPress : printingPressList) {
             totalCost = totalCost
                     .add(this.getCostForPrintedItemsByPrintingPress(printingPress));
         }
         return totalCost;
     }
 
-    public BigDecimal getCostForPrintedItemsByPrintingPress(PrintingPress printingPress) {
+    @Override
+    public BigDecimal getCostForPrintedItemsByPrintingPress(IPrintingPress<P, S> printingPress) {
 
         if (printingPress == null) {
-            return BigDecimal.ZERO;
+            throw new InvalidPrintingPressException(ExceptionMessages.PRINTING_PRESS_CANNOT_BE_NULL);
         }
         if (!this.getPrintingPressList().contains(printingPress)) {
-            throw new IllegalArgumentException("printingPress is not in printingPressList");
+            throw new InvalidPrintingPressException(MessageFormat
+                    .format(ExceptionMessages.PRINTING_PRESS_IS_NOT_PART_OF_THIS_PRINTING_HOUSE, this.getClass().getName()));
         }
 
         var items = printingPress.getPrintedItems();
@@ -144,7 +266,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
             var size = item.getEdition().getSize();
             var type = item.getPaperType();
             var pageCount = item.getEdition().getNumberOfPages();
-            var currentItemCost = this.getCostForSpecificPageSizeAndType((P) type, (T) size, pageCount);
+            var currentItemCost = this.getCostForSpecificPageSizeAndType(type,  size, pageCount);
             var copies = BigDecimal.valueOf(items.get(item));
             totalCost = totalCost.add(currentItemCost).multiply(copies);
         }
@@ -160,9 +282,10 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
      *
      * @return The total cost of all employees' base salaries.
      */
+    @Override
     public BigDecimal getTotalCostForEmployees() {
 
-        if (this.revenueTarget.compareTo(this.getTotalRevenue()) > 0) {
+        if (this.revenueTarget.compareTo(this.getTotalRevenue()) < 0) {
             BigDecimal output = this.getEmployees().stream()
                     .map(x -> {
                         T role = x.getEmployeeType();
@@ -182,12 +305,13 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
                 .reduce(BigDecimal.ZERO, (acc, salary) -> acc.add(salary));
     }
 
+    @Override
     public BigDecimal getTotalRevenue() {
 
         BigDecimal output = this.printingPressList.stream()
                 .flatMap(pp -> pp.getPrintedItems().entrySet().stream())
                 .map(printedItemWithCount -> {
-                    PrintedItem printedItem = printedItemWithCount.getKey();
+                    IPrintedItem<P, S> printedItem = printedItemWithCount.getKey();
                     int count = printedItemWithCount.getValue();
                     BigDecimal itemPrice = printedItem.getPrice();
                     if (count > this.salesDiscountCount) {
@@ -212,43 +336,50 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes> {
      *                      Smallest size is always first in the enum.
      * @param pageCount     The number of pages to be printed. Must be greater than zero.
      * @return The total cost for the requested size, paper type, and page count.
-     * @throws IllegalArgumentException If:
-     *                                  <ul>
-     *                                      <li>`pageCount` is less than or equal to zero.</li>
-     *                                      <li>The base cost for the specified `paperType` is null or invalid (less than or equal to zero).</li>
-     *                                      <li>The requested size is not part of the defined enum constants for the size.</li>
-     *                                  </ul>
      */
-    private BigDecimal getCostForSpecificPageSizeAndType(P paperType, T requestedSize, int pageCount) {
+    private BigDecimal getCostForSpecificPageSizeAndType(P paperType, S requestedSize, int pageCount) {
 
         if (pageCount <= 0) {
-            throw new IllegalArgumentException("Page count must be greater than zero.");
+            throw new InvalidNumberOfPagesException(ExceptionMessages.NUMBER_OF_PAGES_MUST_BE_GREATER_THAN_ZERO);
         }
 
-        BigDecimal basePaperCost = paperType.getCost(paperType);
+        if (paperType == null) {
+            throw new InvalidPaperTypeException(ExceptionMessages.PAPER_TYPE_CANNOT_BE_NULL);
+        }
 
-        if (basePaperCost == null || basePaperCost.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Base cost for paper type " + paperType + " is invalid.");
+        BigDecimal basePaperCost = paperType.getCost();
+
+        if (basePaperCost == null) {
+            throw new InvalidPaperCostException(ExceptionMessages.PAPER_COST_CANNOT_BE_NULL);
+        }
+
+        if (basePaperCost.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidPaperCostException(ExceptionMessages.PAPER_COST_MUST_BE_A_POSITIVE_NUMBER);
         }
 
         // Get the enum constants (sizes) to determine the base size and the requested size index
-        T[] enumConstants = requestedSize.getDeclaringClass().getEnumConstants();
+        S[] enumConstants = requestedSize.getDeclaringClass().getEnumConstants();
+
+        if (enumConstants == null) {
+            throw new InvalidPageSizeException(ExceptionMessages.INVALID_PAGE_SIZE);
+        }
 
         // The first enum constant is the base size, and its cost will be the base cost
         BigDecimal currentCost = basePaperCost;
 
         // Iterate through the enum constants and apply the increment percentage for each size
-        for (T size : enumConstants) {
+        for (S size : enumConstants) {
             // When the requested size is found, return the cost for that size
             if (size == requestedSize) {
-                return currentCost.multiply(BigDecimal.valueOf(pageCount));
+                currentCost = currentCost.multiply(BigDecimal.valueOf(pageCount));
+                break;
             }
 
             // Otherwise, increment the cost by the percentage
             currentCost = currentCost.multiply(BigDecimal.ONE.add(this.incrementPercentageInPercent(this.getPaperIncrementPercentage())));
         }
 
-        throw new IllegalArgumentException("Requested size " + requestedSize + " is not part of the enum.");
+        return currentCost;
     }
 
     // converts raw percentage - for example 10 - to an actual percentage that can be used in calculations - 10/100

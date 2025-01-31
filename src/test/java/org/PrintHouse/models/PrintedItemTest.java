@@ -10,13 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Unit tests for the PrintedItem class.
- */
 public class PrintedItemTest {
     private PrintedItem<PaperType, Size> printedItem;
     private String title;
@@ -129,7 +127,8 @@ public class PrintedItemTest {
                 printedItem.setPrice(priceAboveTheDefinedMaximum));
 
         // Assert
-        assertEquals(ExceptionMessages.PRICE_CANNOT_BE_GREATER_THAN_THE_MAXIMUM_PRICE, exception.getMessage());
+        assertEquals(MessageFormat
+                .format(ExceptionMessages.PRICE_CANNOT_BE_GREATER_THAN_THE_MAXIMUM_PRICE,ModelsConstants.MAXIMUM_PRICE), exception.getMessage());
     }
 
 }

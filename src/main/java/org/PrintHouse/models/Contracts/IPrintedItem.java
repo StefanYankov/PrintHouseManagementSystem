@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * @param <P> The enum type representing the paper type.
  * @param <S> The enum type representing the size of the Edition.
  */
-public interface IPrintedItem<P extends Enum<P> & IPaperTypes, S extends Enum<S>> {
+public interface IPrintedItem<P extends Enum<P>, S extends Enum<S>> {
 
     /**
      * Gets the edition associated with this printed item.

@@ -37,6 +37,7 @@ public class EditionTest {
         Edition<Size> edition = new Edition<>(title, numberOfPages, size);
 
         // Assert: Check if the values are set correctly
+        assertNotNull(edition);
         assertEquals(title, edition.getTitle());
         assertEquals(numberOfPages, edition.getNumberOfPages());
         assertEquals(size, edition.getSize());

@@ -1,27 +1,23 @@
 package org.PrintHouse.models;
 
+
 import org.PrintHouse.models.Contracts.IPaperTypes;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public enum PaperType implements IPaperTypes {
-    STANDARD, GLOSSY, NEWSPAPER;
+    STANDARD(BigDecimal.valueOf(100)),
+    GLOSSY(BigDecimal.valueOf(120)),
+    NEWSPAPER(BigDecimal.valueOf(80));
 
-    private final Map<PaperType, BigDecimal> paperCosts = new HashMap<>();
+    private final BigDecimal cost;
 
-    static {
-        STANDARD.paperCosts.put(STANDARD, BigDecimal.valueOf(100));
-        GLOSSY.paperCosts.put(GLOSSY, BigDecimal.valueOf(120));
-        NEWSPAPER.paperCosts.put(NEWSPAPER, BigDecimal.valueOf(80));
+    PaperType(BigDecimal cost) {
+        this.cost = cost;
     }
 
-    @Override
-    public BigDecimal getCost(Enum<?> type) {
-        if (type instanceof PaperType) {
-            return paperCosts.get(type);
-        }
-        return BigDecimal.ZERO;
+    public BigDecimal getCost() {
+        return this.cost;
     }
 }
