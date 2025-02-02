@@ -1,5 +1,7 @@
 package org.PrintHouse.models.Contracts;
 
+import org.PrintHouse.utilities.contracts.ISerializable;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -10,7 +12,7 @@ import java.util.List;
  * @param <P> Paper type, extending Enum and implementing {@link IPaperTypes} to represent various paper types.
  * @param <S> Paper size type, extending Enum to define supported sizes for printing.
  */
-public interface IPrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S extends Enum<S>> {
+public interface IPrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S extends Enum<S>> extends ISerializable {
 
     /**
      * Adds an employee to the print house.
@@ -173,4 +175,11 @@ public interface IPrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes,
      * @return The total revenue as a {@link BigDecimal}.
      */
     public BigDecimal getTotalRevenue();
+
+    /**
+     * Calculates the total cost of printed items across all printing presses.
+     *
+     * @return Total cost of printed items.
+     */
+    public BigDecimal getTotalCostForPrint();
 }

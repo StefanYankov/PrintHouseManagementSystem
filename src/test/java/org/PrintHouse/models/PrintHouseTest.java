@@ -54,7 +54,7 @@ public class PrintHouseTest {
 
     // 1) Happy path
     @Test
-    public void constructorWithValidDataShouldSetupCorrectly() {
+    public void Constructor_ValidData_ShouldSetupCorrectly() {
         assertNotNull(printHouse);
         assertEquals(validEmployeeSalaryIncrementPercentage, printHouse.getEmployeeSalaryIncrementPercentage());
         assertEquals(validPaperIncrementPercentage, printHouse.getPaperIncrementPercentage());
@@ -66,21 +66,21 @@ public class PrintHouseTest {
     }
 
     @Test
-    void addEmployeeWithValidDataShouldSetCorrectly() {
+    public void AddEmployee_ValidEmployee_ShouldBeAdded() {
         printHouse.addEmployee(employee);
         assertEquals(1, printHouse.getEmployees().size());
         assertEquals(employee, printHouse.getEmployees().getFirst());
     }
 
     @Test
-    void addPrintingPressWithValidDataShouldSetCorrectly() {
+    public void AddPrintingPress_ValidPrintingPress_ShouldBeAdded() {
         printHouse.addPrintingPress(printingPress);
         assertEquals(1, printHouse.getPrintingPressList().size());
         assertEquals(printingPress, printHouse.getPrintingPressList().getFirst());
     }
 
     @Test
-    void getTotalCostForPrintWithValidDataShouldSetCorrectly() {
+    public void GetTotalCostForPrint_ValidData_ShouldReturnPositiveCost() {
         printHouse.addPrintingPress(printingPress);
         printingPress.printItems(true, printedItem, 10);
         BigDecimal cost = printHouse.getCostForPrintedItemsByPrintingPress(printingPress);
@@ -88,7 +88,7 @@ public class PrintHouseTest {
     }
 
     @Test
-    void getTotalRevenueWithValidDataShouldSetCorrectly() {
+    public void GetTotalRevenue_ValidData_ShouldReturnPositiveRevenue() {
         printHouse.addPrintingPress(printingPress);
         printingPress.printItems(true, printedItem, 15); // Above discount count
         BigDecimal totalRevenue = printHouse.getTotalRevenue();
@@ -96,26 +96,30 @@ public class PrintHouseTest {
     }
 
     @Test
-    public void getTotalCostForEmployeesWithRevenueTargetNotMetWithValidDataShouldSetCorrectly() {
+    public void GetTotalCostForEmployees_RevenueTargetNotMet_ShouldReturnBaseSalary() {
         printHouse.addEmployee(employee);
         BigDecimal totalCost = printHouse.getTotalCostForEmployees();
         assertEquals(BigDecimal.valueOf(1000), totalCost);
     }
 
     @Test
-    void getTotalCostForEmployeesWithRevenueTargetMetWithValidDataShouldSetCorrectly() {
+    public void GetTotalCostForEmployees_RevenueTargetMet_ShouldReturnIncrementedSalary() {
+
         printHouse.addEmployee(employee);
         printHouse.addPrintingPress(printingPress);
-        printingPress.printItems(true, printedItem, 200);
+
+        printingPress.printItems(true, printedItem, 300);
+
         BigDecimal totalCost = printHouse.getTotalCostForEmployees();
-        assertEquals(BigDecimal.valueOf(1000), totalCost);
+
+        assertEquals(BigDecimal.valueOf(1100.0), totalCost);
     }
 
     // 2) Error Cases
     @Test
-    void testConstructor_NullEmployeeSalaryIncrementPercentage() {
+    public void Constructor_NullEmployeeSalaryIncrementPercentage_ShouldThrowInvalidIncrementPercentage() {
         assertThrows(InvalidIncrementPercentage.class, () -> new PrintHouse<>(
-                null, // employeeSalaryIncrementPercentage (invalid)
+                null,
                 validPaperIncrementPercentage,
                 validBaseSalary,
                 incrementEligibleRoles,
@@ -126,10 +130,10 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_NullPaperIncrementPercentage() {
+    public void Constructor_NullPaperIncrementPercentage_ShouldThrowInvalidIncrementPercentage() {
         assertThrows(InvalidIncrementPercentage.class, () -> new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
-                null, // paperIncrementPercentage (invalid)
+                null,
                 validBaseSalary,
                 incrementEligibleRoles,
                 validRevenueTarget,
@@ -139,11 +143,11 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_NullBaseSalary() {
+    public void Constructor_NullBaseSalary_ShouldThrowInvalidSalaryException() {
         assertThrows(InvalidSalaryException.class, () -> new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
                 validPaperIncrementPercentage,
-                null, // baseSalary (invalid)
+                null,
                 incrementEligibleRoles,
                 validRevenueTarget,
                 validSalesDiscountCount,
@@ -152,7 +156,7 @@ public class PrintHouseTest {
     }
 
     @Test
-    public void constructorWithNullIncrementEligibleRolesShouldThrowException() {
+    public void Constructor_NullIncrementEligibleRoles_ShouldThrowInvalidIncrementEligibleRoles() {
         assertThrows(InvalidIncrementEligibleRoles.class, () -> new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
                 validPaperIncrementPercentage,
@@ -165,7 +169,7 @@ public class PrintHouseTest {
     }
 
     @Test
-    public void constructorWithNegativeEmployeeSalaryIncrementPercentageShouldThrowException() {
+    public void Constructor_NegativeEmployeeSalaryIncrementPercentage_ShouldThrowInvalidIncrementPercentage() {
         assertThrows(InvalidIncrementPercentage.class, () -> new PrintHouse<>(
                 BigDecimal.valueOf(-1),
                 validPaperIncrementPercentage,
@@ -178,10 +182,10 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_NegativePaperIncrementPercentage() {
+    public void Constructor_NegativePaperIncrementPercentage_ShouldThrowInvalidIncrementPercentage() {
         assertThrows(InvalidIncrementPercentage.class, () -> new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
-                BigDecimal.valueOf(-1), // paperIncrementPercentage (invalid)
+                BigDecimal.valueOf(-1),
                 validBaseSalary,
                 incrementEligibleRoles,
                 validRevenueTarget,
@@ -191,11 +195,11 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_NegativeBaseSalary() {
+    public void Constructor_NegativeBaseSalary_ShouldThrowInvalidSalaryException() {
         assertThrows(InvalidSalaryException.class, () -> new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
                 validPaperIncrementPercentage,
-                BigDecimal.valueOf(-1), // baseSalary (invalid)
+                BigDecimal.valueOf(-1),
                 incrementEligibleRoles,
                 validRevenueTarget,
                 validSalesDiscountCount,
@@ -204,20 +208,20 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testGetCostForPrintedItemsByPrintingPress_NullPrintingPress() {
+    public void GetCostForPrintedItemsByPrintingPress_NullPrintingPress_ShouldThrowInvalidPrintingPressException() {
         assertThrows(InvalidPrintingPressException.class, () -> printHouse.getCostForPrintedItemsByPrintingPress(null));
     }
 
     @Test
-    void testGetCostForPrintedItemsByPrintingPress_PrintingPressNotInList() {
+    public void GetCostForPrintedItemsByPrintingPress_PrintingPressNotInList_ShouldThrowInvalidPrintingPressException() {
         assertThrows(InvalidPrintingPressException.class, () -> printHouse.getCostForPrintedItemsByPrintingPress(printingPress));
     }
 
     // 3) Common Edge Cases
     @Test
-    void testConstructor_ZeroEmployeeSalaryIncrementPercentage() {
+    public void Constructor_ZeroEmployeeSalaryIncrementPercentage_ShouldSetCorrectly() {
         printHouse = new PrintHouse<>(
-                BigDecimal.ZERO, // employeeSalaryIncrementPercentage (edge case)
+                BigDecimal.ZERO,
                 validPaperIncrementPercentage,
                 validBaseSalary,
                 incrementEligibleRoles,
@@ -231,10 +235,10 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_ZeroPaperIncrementPercentage() {
+    public void Constructor_ZeroPaperIncrementPercentage_ShouldSetCorrectly() {
         printHouse = new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
-                BigDecimal.ZERO, // paperIncrementPercentage (edge case)
+                BigDecimal.ZERO,
                 validBaseSalary,
                 incrementEligibleRoles,
                 validRevenueTarget,
@@ -247,11 +251,11 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_ZeroBaseSalary() {
+    public void Constructor_ZeroBaseSalary_ShouldSetCorrectly() {
         printHouse = new PrintHouse<>(
                 validEmployeeSalaryIncrementPercentage,
                 validPaperIncrementPercentage,
-                BigDecimal.ZERO, // baseSalary (edge case)
+                BigDecimal.ZERO,
                 incrementEligibleRoles,
                 validRevenueTarget,
                 validSalesDiscountCount,
@@ -263,7 +267,7 @@ public class PrintHouseTest {
     }
 
     @Test
-    void testConstructor_EmptyIncrementEligibleRoles() {
+    public void Constructor_EmptyIncrementEligibleRoles_ShouldCreatePrintHouse() {
         printHouse = new PrintHouse<EmployeeType, PaperType, Size>(
                 validEmployeeSalaryIncrementPercentage,
                 validPaperIncrementPercentage,
@@ -280,7 +284,7 @@ public class PrintHouseTest {
 
     // 4) Less Common Edge Cases
     @Test
-    public void testGetCostForPrintedItemsByPrintingPress_InvalidPaperCost() {
+    public void GetCostForPrintedItemsByPrintingPress_InvalidPaperCost_ShouldThrowInvalidPaperCostException() {
 
         enum InvalidPaperType implements IPaperTypes {
             INVALID(null);

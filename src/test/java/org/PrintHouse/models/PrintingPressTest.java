@@ -1,6 +1,5 @@
 package org.PrintHouse.models;
 
-import org.PrintHouse.models.Contracts.IPrintedItem;
 import org.PrintHouse.utilities.exceptions.InvalidPaperLoadException;
 import org.PrintHouse.utilities.globalconstants.ModelsConstants;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +74,8 @@ public class PrintingPressTest {
     @Test
     public void setMaxPaperLoadWithNegativeValueShouldThrowException() {
         assertThrows(InvalidPaperLoadException.class, () -> this.printingPress.setMaxPaperLoad(-1));
+        assertThrows(InvalidPaperLoadException.class, () -> this.printingPress.setMaxPaperLoad(Integer.MIN_VALUE));
+
     }
 
     @Test

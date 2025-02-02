@@ -1,6 +1,7 @@
 package org.PrintHouse.models;
 
 import org.PrintHouse.models.Contracts.*;
+import org.PrintHouse.utilities.contracts.ISerializable;
 import org.PrintHouse.utilities.exceptions.*;
 import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 
@@ -16,7 +17,7 @@ import java.util.List;
  * @param <P> Paper type, extending Enum and implementing IPaperTypes to represent various paper types.
  * @param <S> Paper size type, extending Enum to define supported sizes for printing.
  */
-public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintHouse<T, P, S>  {
+public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintHouse<T, P, S>, ISerializable {
     private final List<IEmployable<T>> employees;
     private final List<IPrintingPress<P, S>> printingPressList;
 
@@ -55,24 +56,6 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
                       BigDecimal revenueTarget,
                       int discountCount,
                       BigDecimal discountPercentage) {
-        this.employees = new ArrayList<IEmployable<T>>();
-        this.printingPressList = new ArrayList<IPrintingPress<P, S>>();
-        this.setEmployeeSalaryIncrementPercentage(salaryIncrementBonusPercentage);
-        this.setBaseSalary(baseSalary);
-        this.setIncrementEligibleRoles(incrementEligibleRoles);
-        this.setPaperIncrementPercentage(paperIncrementPercentage);
-        this.setRevenueTarget(revenueTarget);
-        this.setSalesDiscountCount(discountCount);
-        this.setSalesDiscountPercentage(discountPercentage);
-    }
-
-    public PrintHouse(BigDecimal salaryIncrementBonusPercentage,
-                      BigDecimal paperIncrementPercentage,
-                      BigDecimal baseSalary,
-                      BigDecimal revenueTarget,
-                      int discountCount,
-                      BigDecimal discountPercentage) {
-        this.incrementEligibleRoles = new ArrayList<>();
         this.employees = new ArrayList<IEmployable<T>>();
         this.printingPressList = new ArrayList<IPrintingPress<P, S>>();
         this.setEmployeeSalaryIncrementPercentage(salaryIncrementBonusPercentage);
@@ -234,9 +217,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
     }
 
     /**
-     * Calculates the total cost of printed items across all printing presses.
-     *
-     * @return Total cost of printed items.
+     * {@inheritDoc}
      */
     public BigDecimal getTotalCostForPrint() {
         BigDecimal totalCost = BigDecimal.ZERO;
@@ -285,13 +266,16 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
     @Override
     public BigDecimal getTotalCostForEmployees() {
 
-        if (this.revenueTarget.compareTo(this.getTotalRevenue()) < 0) {
+        var totalRevenue = this.getTotalRevenue();
+        // check if the revenue target is hi and if that is the case increments only the salary of the eligible roles with the percentage
+        if (this.revenueTarget.compareTo(totalRevenue) < 0) {
             BigDecimal output = this.getEmployees().stream()
                     .map(x -> {
                         T role = x.getEmployeeType();
                         BigDecimal salary = x.getBaseSalary();
                         if (this.incrementEligibleRoles.contains(role)) {
-                            return this.applySalaryIncrement(salary, this.employeeSalaryIncrementPercentage);
+                            salary = this.applySalaryIncrement(salary, this.employeeSalaryIncrementPercentage);
+                            return salary;
                         }
                         return salary;
 
