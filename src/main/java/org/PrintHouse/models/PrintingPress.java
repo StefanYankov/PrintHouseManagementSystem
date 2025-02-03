@@ -1,15 +1,19 @@
 package org.PrintHouse.models;
 
+import org.PrintHouse.models.Contracts.IEdition;
 import org.PrintHouse.models.Contracts.IPaperTypes;
 import org.PrintHouse.models.Contracts.IPrintedItem;
 import org.PrintHouse.models.Contracts.IPrintingPress;
+import org.PrintHouse.utilities.exceptions.InvalidCopiesCountException;
 import org.PrintHouse.utilities.exceptions.InvalidNumberOfPagesException;
 import org.PrintHouse.utilities.exceptions.InvalidPaperLoadException;
 import org.PrintHouse.utilities.exceptions.UnsupportedPrintColorException;
 import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 import org.PrintHouse.utilities.globalconstants.ModelsConstants;
 
+import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +30,7 @@ import java.util.Map;
  */
 public class PrintingPress<P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintingPress<P, S>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private int maxPaperLoad;
     private int currentPaperLoad;
@@ -176,19 +181,26 @@ public class PrintingPress<P extends Enum<P> & IPaperTypes, S extends Enum<S>> i
      * {@inheritDoc}
      */
     @Override
-    public void printItems(boolean isColor, IPrintedItem<P, S> printedItem, int copies) {
+    public void printItems(boolean isColor, IEdition<S> editionToPrint, P paperType, BigDecimal pricePerCopy, int copies) {
         if (isColor != this.getIsColor()) {
             throw new UnsupportedPrintColorException(MessageFormat
                     .format(ExceptionMessages.INCOMPATIBLE_COLOR_TYPE, this.getIsColor(), isColor));
         }
 
+        if (copies <= 0) {
+            throw new InvalidCopiesCountException(ExceptionMessages.COPIES_COUNT_NEED_TO_BE_GREATER_THAN_ZERO);
+        }
+
         // two pages per piece of paper
-        int pagesToPrint = (int) Math.ceil(printedItem.getEdition().getNumberOfPages() / 2.0);
+        int pagesToPrint = (int) Math.ceil(editionToPrint.getNumberOfPages() / 2.0);
 
         if (pagesToPrint > this.getCurrentPaperLoad()) {
             throw new InvalidPaperLoadException(MessageFormat
                     .format(ExceptionMessages.INSUFFICIENT_PAPER_LOAD, pagesToPrint, this.currentPaperLoad));
         }
+
+        // TODO: create a factory class or a service to not make the print items that tightly coupled to PrintingPress
+        IPrintedItem<P, S> printedItem = new PrintedItem<>(editionToPrint, paperType, pricePerCopy, isColor);
 
         this.addPrintedItem(printedItem, copies);
         this.setCurrentPaperLoad(this.getCurrentPaperLoad() - pagesToPrint);
@@ -198,8 +210,8 @@ public class PrintingPress<P extends Enum<P> & IPaperTypes, S extends Enum<S>> i
      * {@inheritDoc}
      */
     @Override
-    public void printAnItem(boolean isColor, IPrintedItem<P, S> printedItem) {
-        this.printItems(isColor, printedItem, 1);
+    public void printAnItem(boolean isColor, IEdition<S> edition, P paperType, BigDecimal pricePerCopy) {
+        this.printItems(isColor, edition, paperType, pricePerCopy, 1);
     }
 
     /**
@@ -215,6 +227,12 @@ public class PrintingPress<P extends Enum<P> & IPaperTypes, S extends Enum<S>> i
     }
 
     private void addPrintedItem(IPrintedItem<P, S> printedItem, int countOfCopies) {
-        this.printedItems.put(printedItem, countOfCopies);
+
+        if (!this.printedItems.containsKey(printedItem)) {
+            this.printedItems.put(printedItem, countOfCopies);
+        } else {
+            this.printedItems.put(printedItem, printedItems.get(printedItem) + countOfCopies);
+        }
+
     }
 }

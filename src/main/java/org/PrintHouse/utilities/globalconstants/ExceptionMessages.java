@@ -46,4 +46,6 @@ public class ExceptionMessages {
     public static final String INCREMENT_ELIGIBLE_ROLES_CANNOT_BE_NULL = "Increment eligible roles cannot be null.";
     public static final String EMPLOYEE_SALARY_INCREMENT_PERCENTAGE_CANNOT_BE_A_NEGATIVE_NUMBER = "Employee salary increment percentage cannot be a negative number.";
     public static final String EMPLOYEE_CANNOT_BE_NULL = "Employee cannot be null.";
+    public static final String EMPLOYEE_IS_ALREADY_ADDED_IN_PRINT_HOUSE = "Employee is already added in print house.";
+    public static final String COPIES_COUNT_NEED_TO_BE_GREATER_THAN_ZERO = "Copies count must be greater than zero.";
 }

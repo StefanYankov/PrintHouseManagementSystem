@@ -1,5 +1,8 @@
 package org.PrintHouse.models.Contracts;
 
+import org.PrintHouse.models.PaperType;
+
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -49,19 +52,23 @@ public interface IPrintingPress<P extends Enum<P> , S extends Enum<S>> {
     /**
      * Prints a specified item a given number of times.
      *
-     * @param isColor     Indicates if the item should be printed in color.
-     * @param printedItem The item to print.
-     * @param copies      The number of copies to print.
+     * @param isColor        A boolean indicating whether the print should be in color (true) or black and white (false).
+     * @param editionToPrint The edition to print, implementing {@link IEdition}.
+     * @param paperType      The type of paper to use for printing.
+     * @param pricePerCopy   The price per copy of the printed item.
+     * @param copies         The number of copies to print. Must be greater than zero.
      */
-    public void printItems(boolean isColor, IPrintedItem<P, S> printedItem, int copies);
+    public void printItems(boolean isColor, IEdition<S> editionToPrint, P paperType, BigDecimal pricePerCopy, int copies);
 
     /**
      * Prints a specified item a single time.
      *
-     * @param isColor     Indicates if the item should be printed in color.
-     * @param printedItem The item to print.
+     * @param isColor      A boolean indicating whether the print should be in color (true) or black and white (false).
+     * @param editionToPrint      The edition to print, implementing {@link IEdition}.
+     * @param paperType    The type of paper to use for printing.
+     * @param pricePerCopy The price per copy of the printed item.
      */
-    public void printAnItem(boolean isColor, IPrintedItem<P, S> printedItem);
+    public void printAnItem(boolean isColor, IEdition<S> editionToPrint, P paperType, BigDecimal pricePerCopy);
 
     /**
      * Retrieves the map of printed items and their respective counts.

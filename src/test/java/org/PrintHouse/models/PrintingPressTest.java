@@ -17,15 +17,16 @@ public class PrintingPressTest {
     private Edition<Size> validEditionA5;
     private String validTitle;
     private int validMaximumPaperLoad;
-    BigDecimal priceStandard;
-    BigDecimal priceGlossy;
+    private BigDecimal priceStandard;
+    private BigDecimal priceGlossy;
+    private boolean isColour;
 
-    private PrintedItem<PaperType, Size> itemStandard;
-    private PrintedItem<PaperType, Size> itemGlossy;
 
     @BeforeEach
     void setUp() {
-        printingPress = new PrintingPress<>(100, 50, true, 30);
+        isColour = true;
+
+        printingPress = new PrintingPress<>(100, 50, isColour, 30);
         validTitle = "The Lord of the Rings: The Two Towers";
         validEditionA4 = new Edition<>(validTitle, 10, Size.A4);
         validEditionA5 = new Edition<>(validTitle, 20, Size.A5);
@@ -33,8 +34,6 @@ public class PrintingPressTest {
         priceStandard = BigDecimal.valueOf(200);
         priceGlossy = BigDecimal.valueOf(300);
         validMaximumPaperLoad = 100;
-        itemStandard = new PrintedItem<>(validEditionA4, PaperType.STANDARD, priceStandard);
-        itemGlossy = new PrintedItem<>(validEditionA5, PaperType.GLOSSY, priceGlossy);
     }
 
     // 1) Happy path
@@ -67,6 +66,64 @@ public class PrintingPressTest {
 
         this.printingPress.setCurrentPaperLoad(validMaximumPaperLoad);
         assertEquals(validMaximumPaperLoad, printingPress.getCurrentPaperLoad());
+    }
+
+    @Test
+    public void printItems_WithValidCount_ShouldWorkCorrectly() {
+        int copies = 3;
+        printingPress.printItems(true, validEditionA4, PaperType.STANDARD, priceStandard, copies);
+        var items = printingPress.getPrintedItems().values()
+                .stream()
+                .mapToInt(x -> x)
+                .sum();
+        assertEquals(copies, items);
+    }
+
+    @Test
+    public void printItems_DuplicatePrintItem_ShouldIncrementTheCountValue() {
+        printingPress.printItems(isColour, validEditionA4, PaperType.STANDARD, priceStandard, 1);
+        printingPress.printItems(isColour, validEditionA4, PaperType.STANDARD, priceStandard, 2);
+
+        var copiesCount = printingPress.getPrintedItems()
+                .entrySet()
+                .stream()
+                .filter(x -> x.getKey().getEdition().equals(validEditionA4))
+                .mapToInt(x -> x.getValue())
+                .sum();
+
+        assertEquals(3, copiesCount);
+
+        printingPress.printItems(isColour, validEditionA4, PaperType.GLOSSY, priceGlossy, 1);
+
+        int totalPrintedItems = printingPress.getPrintedItems()
+                .values()
+                .stream()
+                .mapToInt(x -> x)
+                .sum();
+
+        assertEquals(4, totalPrintedItems);
+    }
+
+    @Test
+    public void printAnItem_DuplicatePrintItem_ShouldAmendTheCountValue() {
+        printingPress.printAnItem(true, validEditionA4, PaperType.STANDARD, priceStandard);
+        printingPress.printAnItem(true, validEditionA4, PaperType.STANDARD, priceStandard);
+        printingPress.printAnItem(true, validEditionA4, PaperType.STANDARD, priceStandard);
+
+        var copiesCount = printingPress.getPrintedItems()
+                .entrySet()
+                .stream()
+                .filter(x -> x.getKey().getEdition().equals(validEditionA4))
+                .mapToInt(x -> x.getValue())
+                .sum();
+        assertEquals(3, copiesCount);
+    }
+
+    @Test
+    public void printItems_DifferentPaperTypes_ShouldAddThemCorrectly() {
+        printingPress.printItems(true, validEditionA4, PaperType.STANDARD, BigDecimal.valueOf(50), 1);
+        printingPress.printItems(true, validEditionA4, PaperType.STANDARD, BigDecimal.valueOf(50), 1);
+        assertEquals(2, this.printingPress.getPrintedItems().size());
     }
 
     // Error cases
@@ -102,27 +159,5 @@ public class PrintingPressTest {
             this.printingPress.setCurrentPaperLoad(validMaximumPaperLoad + 1);
         });
     }
-    // Common edge cases
 
-    // 4) Less Common Edge Cases
-//    @Test
-//    void testPrintItems_ZeroCopies() {
-//
-//        IPrintedItem<PaperType, Size> printedItem = 00
-//11
-//        printingPress.printItems(true, printedItem, 0);
-//        Map<IPrintedItem<PaperType, Size>, Integer> printedItems = printingPress.getPrintedItems();
-//        assertEquals(0, printedItems.size());
-//        assertEquals(500, printingPress.getCurrentPaperLoad()); // No pages used
-//    }
-
-    @Test
-    void testPrintItems_NullPrintedItem() {
-        assertThrows(NullPointerException.class, () -> printingPress.printItems(true, null, 10));
-    }
-
-//    @Test
-//    void testPrintItems_NegativeCopies() {
-//        assertThrows(IllegalArgumentException.class, () -> printingPress.printItems(true, printedItem, -1));
-//    }
 }

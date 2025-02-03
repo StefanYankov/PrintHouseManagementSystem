@@ -1,6 +1,7 @@
 package org.PrintHouse.models;
 
 import org.PrintHouse.models.Contracts.IEdition;
+import org.PrintHouse.utilities.contracts.ISerializable;
 import org.PrintHouse.utilities.exceptions.InvalidNumberOfPagesException;
 import org.PrintHouse.utilities.exceptions.InvalidPageSizeException;
 import org.PrintHouse.utilities.exceptions.InvalidTitleException;
@@ -13,10 +14,11 @@ import java.text.MessageFormat;
  * Represents an Edition of a printed material, containing information about
  * its title, number of pages, and size.
  *
- * @param <E> The enum type representing the size of the Edition.
+ * @param <S> The enum type representing the size of the Edition.
  */
-public class Edition<E extends Enum<E>> implements IEdition<E> {
+public class Edition<S extends Enum<S>> implements IEdition<S>, ISerializable {
 
+    private static final long serialVersionUID = 1L;
     /**
      * The title of the Edition.
      */
@@ -30,7 +32,7 @@ public class Edition<E extends Enum<E>> implements IEdition<E> {
     /**
      * The size of the Edition, represented by an enum of type S.
      */
-    private E size;
+    private S size;
 
     /**
      * Constructs a new Edition with the specified title, number of pages, and size.
@@ -48,7 +50,7 @@ public class Edition<E extends Enum<E>> implements IEdition<E> {
      * @throws InvalidNumberOfPagesException If the number of pages is invalid.
      * @throws InvalidPageSizeException If the size is {@code null}.
      */
-    public Edition(String title, int numberOfPages, E size) {
+    public Edition(String title, int numberOfPages, S size) {
         this.setTitle(title);
         this.setNumberOfPages(numberOfPages);
         this.setSize(size);
@@ -125,7 +127,7 @@ public class Edition<E extends Enum<E>> implements IEdition<E> {
      * {@inheritDoc}
      */
     @Override
-    public E getSize() {
+    public S getSize() {
         return size;
     }
 
@@ -137,11 +139,20 @@ public class Edition<E extends Enum<E>> implements IEdition<E> {
      * @throws InvalidPageSizeException If the provided size is {@code null}.
      */
     @Override
-    public void setSize(E size) {
+    public void setSize(S size) {
 
         if (size == null) {
             throw new InvalidPageSizeException(ExceptionMessages.INVALID_PAGE_SIZE);
         }
         this.size = size;
+    }
+
+    @Override
+    public String toString() {
+        return "Edition{" +
+                "title='" + title + '\'' +
+                ", numberOfPages=" + numberOfPages +
+                ", size=" + size +
+                '}';
     }
 }

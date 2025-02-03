@@ -20,9 +20,10 @@ public class PrintedItemTest {
     private String title;
     private int numberOfPages;
     private Size size;
-    PaperType paperType;
+    private PaperType paperType;
     private IEdition edition;
     private BigDecimal price;
+    private boolean isColour;
 
     @BeforeEach
     public void setUp() {
@@ -32,12 +33,13 @@ public class PrintedItemTest {
         edition = new Edition<>(title, numberOfPages, size);
         paperType = PaperType.STANDARD;
         price = BigDecimal.valueOf(100);
-        printedItem = new PrintedItem<>(edition, paperType, price);
+        isColour = true;
+        printedItem = new PrintedItem<>(edition, paperType, price, isColour);
     }
 
     // Happy path
     @Test
-    public void constructorWithValidDataShouldSetupCorrectly() {
+    public void constructor_ValidData_ShouldSetupCorrectly() {
         // Assert
         assertNotNull(printedItem);
         assertEquals(this.edition, printedItem.getEdition());
@@ -46,7 +48,7 @@ public class PrintedItemTest {
     }
 
     @Test
-    public void setPaperTypeWithValidDataShouldSetCorrectly() {
+    public void setPaperType_ValidData_ShouldSetCorrectly() {
         // Arrange
         PaperType paperType = PaperType.STANDARD;
 
@@ -58,7 +60,7 @@ public class PrintedItemTest {
     }
 
     @Test
-    public void setPriceWithValidDataShouldSetCorrectly() {
+    public void setPrice_ValidData_ShouldSetCorrectly() {
 
         // Arrange
         BigDecimal testPrice = BigDecimal.valueOf(5);

@@ -2,7 +2,6 @@ package org.PrintHouse.models;
 
 import org.PrintHouse.models.Contracts.*;
 import org.PrintHouse.utilities.exceptions.InvalidEditionException;
-import org.PrintHouse.utilities.exceptions.InvalidPageSizeException;
 import org.PrintHouse.utilities.exceptions.InvalidPaperTypeException;
 import org.PrintHouse.utilities.exceptions.InvalidPriceException;
 import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
@@ -35,18 +34,25 @@ public class PrintedItem<P extends Enum<P> & IPaperTypes, S extends Enum<S>> imp
     private BigDecimal price;
 
     /**
+     * The color of the printed item
+     */
+    private final boolean isColour;
+
+    /**
      * Constructs a new PrintedItem with the specified edition, paper type, and price.
      *
      * @param edition   The edition of the printed item, implementing {@link IEdition}.
      * @param paperType The paper type of the printed item.
      * @param price     The price of the printed item as a {@link BigDecimal}.
+     * @param isColour  The colour of the printed item, where true is coloured
      * @throws InvalidPaperTypeException If the paper type is null.
      * @throws InvalidPriceException     If the price is null or less than zero.
      */
-    public PrintedItem(IEdition<S> edition, P paperType, BigDecimal price) {
+    public PrintedItem(IEdition<S> edition, P paperType, BigDecimal price, boolean isColour) {
         this.setEdition(edition);
         this.setPaperType(paperType);
         this.setPrice(price);
+        this.isColour = isColour;
     }
 
     /**
@@ -133,5 +139,23 @@ public class PrintedItem<P extends Enum<P> & IPaperTypes, S extends Enum<S>> imp
         }
 
         this.price = price;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isColour() {
+        return isColour;
+    }
+
+    @Override
+    public String toString() {
+        return "PrintedItem{" +
+                "edition=" + edition +
+                ", paperType=" + paperType +
+                ", price=" + price +
+                ", isColor=" + isColour +
+                '}';
     }
 }

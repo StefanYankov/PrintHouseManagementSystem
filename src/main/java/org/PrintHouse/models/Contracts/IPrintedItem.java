@@ -31,4 +31,10 @@ public interface IPrintedItem<P extends Enum<P>, S extends Enum<S>> {
      * @return The price as a BigDecimal.
      */
     public BigDecimal getPrice();
+
+    /**
+     * Gets the color of the printed item.
+     * @return True if the item is coloured and false if it is not.
+     */
+    public boolean isColour();
 }

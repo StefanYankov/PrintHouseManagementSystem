@@ -73,6 +73,9 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
         if (employee == null){
             throw new InvalidEmployeeException(ExceptionMessages.EMPLOYEE_CANNOT_BE_NULL);
         }
+        if (employees.contains(employee)){
+            throw new InvalidEmployeeException(ExceptionMessages.EMPLOYEE_IS_ALREADY_ADDED_IN_PRINT_HOUSE);
+        }
         employee.setBaseSalary(this.baseSalary);
         employees.add(employee);
     }

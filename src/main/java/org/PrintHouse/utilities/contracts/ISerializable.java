@@ -1,5 +1,7 @@
 package org.PrintHouse.utilities.contracts;
 
+import java.io.Serializable;
+
 /**
  * Represents an object that can be serialized and deserialized.
  * <p>
@@ -7,5 +9,5 @@ package org.PrintHouse.utilities.contracts;
  * support serialization and deserialization operations.
  * </p>
  */
-public interface ISerializable {
+public interface ISerializable extends Serializable {
 }

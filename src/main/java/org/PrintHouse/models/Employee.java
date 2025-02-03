@@ -49,4 +49,11 @@ public class Employee<T> implements IEmployable<T>  {
         this.employeeType = employeeType;
     }
 
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "baseSalary=" + baseSalary +
+                ", employeeType=" + employeeType +
+                '}';
+    }
 }

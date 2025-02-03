@@ -1,11 +1,13 @@
 package org.PrintHouse.models.Contracts;
 
+import org.PrintHouse.utilities.contracts.ISerializable;
+
 /**
  * Interface representing the contract for an Edition.
  *
- * @param <E> The enum type representing the size of the Edition.
+ * @param <S> The enum type representing the size of the Edition.
  */
-public interface IEdition<E extends Enum<E>> {
+public interface IEdition<S extends Enum<S>> extends ISerializable {
 
     /**
      * Gets the title of the Edition.
@@ -40,12 +42,12 @@ public interface IEdition<E extends Enum<E>> {
      *
      * @return The size as an enum of type S.
      */
-    public E getSize();
+    public S getSize();
 
     /**
      * Sets the size of the Edition.
      *
      * @param size The size as an enum of type S.
      */
-    public void setSize(E size);
+    public void setSize(S size);
 }

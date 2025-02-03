@@ -1,5 +1,6 @@
 package org.PrintHouse.models;
 
+import org.PrintHouse.models.Contracts.IEmployable;
 import org.PrintHouse.models.Contracts.IPaperTypes;
 import org.PrintHouse.utilities.exceptions.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,6 @@ public class PrintHouseTest {
     private BigDecimal validSalesDiscountPercentage;
     private Employee<EmployeeType> employee;
     private PrintingPress<PaperType, Size> printingPress;
-    private PrintedItem<PaperType, Size> printedItem;
     private Edition<Size> edition;
 
     @BeforeEach
@@ -49,7 +49,6 @@ public class PrintHouseTest {
         employee = new Employee<>(EmployeeType.MANAGER);
         printingPress = new PrintingPress<>(1000, 500, true, 50);
         edition = new Edition<>("Test Edition", 100, Size.A4);
-        printedItem = new PrintedItem<>(edition, PaperType.STANDARD, BigDecimal.valueOf(50));
     }
 
     // 1) Happy path
@@ -80,9 +79,9 @@ public class PrintHouseTest {
     }
 
     @Test
-    public void GetTotalCostForPrint_ValidData_ShouldReturnPositiveCost() {
+    public void getTotalCostForPrint_ValidData_ShouldReturnPositiveCost() {
         printHouse.addPrintingPress(printingPress);
-        printingPress.printItems(true, printedItem, 10);
+        printingPress.printItems(true, edition, PaperType.STANDARD,BigDecimal.valueOf(50),10);
         BigDecimal cost = printHouse.getCostForPrintedItemsByPrintingPress(printingPress);
         assertTrue(cost.compareTo(BigDecimal.ZERO) > 0);
     }
@@ -90,7 +89,7 @@ public class PrintHouseTest {
     @Test
     public void GetTotalRevenue_ValidData_ShouldReturnPositiveRevenue() {
         printHouse.addPrintingPress(printingPress);
-        printingPress.printItems(true, printedItem, 15); // Above discount count
+        printingPress.printItems(true, edition, PaperType.STANDARD,BigDecimal.valueOf(50),15); // Above discount count
         BigDecimal totalRevenue = printHouse.getTotalRevenue();
         assertTrue(totalRevenue.compareTo(BigDecimal.ZERO) > 0);
     }
@@ -108,7 +107,7 @@ public class PrintHouseTest {
         printHouse.addEmployee(employee);
         printHouse.addPrintingPress(printingPress);
 
-        printingPress.printItems(true, printedItem, 300);
+        printingPress.printItems(true, edition, PaperType.STANDARD,BigDecimal.valueOf(50), 300);
 
         BigDecimal totalCost = printHouse.getTotalCostForEmployees();
 
@@ -215,6 +214,18 @@ public class PrintHouseTest {
     @Test
     public void GetCostForPrintedItemsByPrintingPress_PrintingPressNotInList_ShouldThrowInvalidPrintingPressException() {
         assertThrows(InvalidPrintingPressException.class, () -> printHouse.getCostForPrintedItemsByPrintingPress(printingPress));
+    }
+
+    @Test
+    public void addEmployee_DuplicateEmployee_ShouldThrowDuplicateEmployeeException() {
+        IEmployable<EmployeeType> operator = new Employee<>(EmployeeType.OPERATOR);
+        printHouse.addEmployee(operator);
+        assertThrows(InvalidEmployeeException.class, () -> printHouse.addEmployee(operator));
+
+
+        IEmployable<EmployeeType> manager = new Employee<>(EmployeeType.MANAGER);
+        printHouse.addEmployee(manager);
+        assertThrows(InvalidEmployeeException.class, () -> printHouse.addEmployee(manager));
     }
 
     // 3) Common Edge Cases
@@ -335,8 +346,7 @@ public class PrintHouseTest {
 
         Edition<Size> edition = new Edition<>(title, numberOfPages, size);
         BigDecimal price = BigDecimal.valueOf(50);
-        PrintedItem<InvalidPaperType, Size> printedItem = new PrintedItem<>(edition, InvalidPaperType.INVALID, price);
-        printingPress.printItems(true, printedItem, 10);
+        printingPress.printItems(true, edition, InvalidPaperType.INVALID,price, 10);
         assertThrows(InvalidPaperCostException.class, () -> printHouse.getCostForPrintedItemsByPrintingPress(printingPress));
     }
 }
