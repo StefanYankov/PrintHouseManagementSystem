@@ -111,7 +111,7 @@ public class PrintHouseTest {
 
         BigDecimal totalCost = printHouse.getTotalCostForEmployees();
 
-        assertEquals(BigDecimal.valueOf(1100.0), totalCost);
+        assertEquals(new BigDecimal("1100.00"), totalCost);
     }
 
     // 2) Error Cases

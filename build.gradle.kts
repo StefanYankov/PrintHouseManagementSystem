@@ -23,4 +23,3 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-

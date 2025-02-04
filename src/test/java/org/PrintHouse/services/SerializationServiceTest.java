@@ -58,16 +58,55 @@ public class SerializationServiceTest {
     @Test
     public void deserializeSingleObject_FileDoesNotExist_ShouldReturnNull() {
         SerializationService<TestSerializableEntity> newService = new SerializationService<>("non_existent.dat");
-        assertNull(newService.deserializeSingleObject()); // Should return null instead of throwing an error
+        assertNull(newService.deserializeSingleObject());
     }
 
     @Test
     public void deserializeList_FileDoesNotExist_ShouldReturnEmptyList() {
         SerializationService<TestSerializableEntity> newService = new SerializationService<>("non_existent.dat");
-        assertTrue(newService.deserialize().isEmpty()); // Should return an empty list
+        assertTrue(newService.deserialize().isEmpty());
+    }
+
+    @Test
+    public void constructor_WithPathEndingWithSlash_ShouldConcatenateCorrectly() {
+        // Arrange
+        String path = "test/path/";
+        String fileName = "testFile.dat";
+        String expectedFilePath = "test/path/testFile.dat";
+
+        // Act
+        SerializationService<TestSerializableEntity> serializationService = new SerializationService<>(path, fileName);
+
+        // Assert
+        assertEquals(expectedFilePath, getFilePath(serializationService));
+    }
+
+    @Test
+    public void constructor_WithPathNotEndingWithSlash_ShouldConcatenateCorrectly() {
+        // Arrange
+        String path = "test/path";
+        String fileName = "testFile.dat";
+        String expectedFilePath = "test/path/testFile.dat";
+
+        // Act
+        SerializationService<TestSerializableEntity> serializationService = new SerializationService<>(path, fileName);
+
+        // Assert
+        assertEquals(expectedFilePath, getFilePath(serializationService));
     }
 
 
+
+    // Helper method to access the private filePath field for testing purposes
+    private String getFilePath(SerializationService<?> service) {
+        try {
+            java.lang.reflect.Field field = SerializationService.class.getDeclaredField("filePath");
+            field.setAccessible(true);
+            return (String) field.get(service);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     static class TestSerializableEntity implements ISerializable, java.io.Serializable {
         private final int id;

@@ -5,7 +5,10 @@ import org.PrintHouse.models.Contracts.IPaperTypes;
 
 import java.math.BigDecimal;
 
-
+/**
+ * Represents different types of paper used in the printing process.
+ * This enum implements the {@link IPaperTypes} interface and provides the cost for each paper type.
+ */
 public enum PaperType implements IPaperTypes {
     STANDARD(BigDecimal.valueOf(100)),
     GLOSSY(BigDecimal.valueOf(120)),
@@ -17,6 +20,9 @@ public enum PaperType implements IPaperTypes {
         this.cost = cost;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public BigDecimal getCost() {
         return this.cost;
     }

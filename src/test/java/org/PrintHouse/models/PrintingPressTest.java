@@ -129,7 +129,7 @@ public class PrintingPressTest {
     // Error cases
 
     @Test
-    public void setMaxPaperLoadWithNegativeValueShouldThrowException() {
+    public void setMaxPaperLoad_NegativeValue_ShouldThrowException() {
         assertThrows(InvalidPaperLoadException.class, () -> this.printingPress.setMaxPaperLoad(-1));
         assertThrows(InvalidPaperLoadException.class, () -> this.printingPress.setMaxPaperLoad(Integer.MIN_VALUE));
 
