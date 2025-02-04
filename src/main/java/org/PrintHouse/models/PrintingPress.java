@@ -4,6 +4,7 @@ import org.PrintHouse.models.Contracts.IEdition;
 import org.PrintHouse.models.Contracts.IPaperTypes;
 import org.PrintHouse.models.Contracts.IPrintedItem;
 import org.PrintHouse.models.Contracts.IPrintingPress;
+import org.PrintHouse.utilities.contracts.ISerializable;
 import org.PrintHouse.utilities.exceptions.InvalidCopiesCountException;
 import org.PrintHouse.utilities.exceptions.InvalidNumberOfPagesException;
 import org.PrintHouse.utilities.exceptions.InvalidPaperLoadException;
@@ -12,7 +13,6 @@ import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 import org.PrintHouse.utilities.globalconstants.ModelsConstants;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.Map;
  * @param <P> The type of paper, represented by an enum implementing {@link IPaperTypes}.
  * @param <S> The type of edition size, represented by an enum.
  */
-public class PrintingPress<P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintingPress<P, S>, Serializable {
+public class PrintingPress<P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintingPress<P, S>, ISerializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

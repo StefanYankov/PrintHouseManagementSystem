@@ -9,11 +9,10 @@ import org.PrintHouse.utilities.SerializationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 public class DemoEngine implements IEngine {
 
     private IPrintHouse<EmployeeType, PaperType, Size> printHouse;
-    private SerializationService<IPrintHouse<EmployeeType, PaperType, Size>> serializationService;
+    private SerializationService<IPrintHouse<EmployeeType, PaperType, Size>> serializationServicePrintHouse;
     private BigDecimal salaryIncrementBonusPercentage;
     private BigDecimal paperIncrementPercentage;
     private BigDecimal baseSalary;
@@ -78,7 +77,7 @@ public class DemoEngine implements IEngine {
         // Deserialize the list of entities
         List<IEdition<Size>> deserializedEditions = serializationServiceEdition.deserialize();
 
-        // create a printing pres
+        // create a printing press
         int maxPaperLoad = 1000;
         int currentPaperLoad = 1000;
         boolean canColorPrint = true;
@@ -93,14 +92,10 @@ public class DemoEngine implements IEngine {
         // add the printing press to the print house
         printHouse.addPrintingPress(printingPress1);
 
-
         // create printed items based on the deserialized object list
         for (var edition : deserializedEditions) {
-            printingPress1.printItems(canColorPrint, edition, PaperType.STANDARD,BigDecimal.valueOf(25),1);
+            printingPress1.printItems(canColorPrint, edition, PaperType.STANDARD, BigDecimal.valueOf(25), 1);
         }
-
-
-        // System.out.println(printingPress1.getPrintedItems());
 
         System.out.println(printHouse.getCostForPrintedItemsByPrintingPress(printingPress1));
 
@@ -113,16 +108,14 @@ public class DemoEngine implements IEngine {
         printHouse.addEmployee(operator2);
         printHouse.addEmployee(manager1);
         printHouse.addEmployee(manager2);
+
         try {
             printHouse.addEmployee(manager2);
-
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
 
-
         System.out.println(printHouse.getEmployees());
-
         System.out.println("Total revenue: " + printHouse.getTotalRevenue());
         System.out.println("Revenue target: " + printHouse.getRevenueTarget());
         System.out.println("Total cost for employees: " + printHouse.getTotalCostForEmployees());
@@ -133,10 +126,8 @@ public class DemoEngine implements IEngine {
         var printingPress = printHouse.getPrintingPressList().getFirst();
         System.out.println("Current paper load for " + printingPress.getCurrentPaperLoad());
 
-
         try {
-            printingPress.printAnItem(true, crimeAndPunishment,PaperType.GLOSSY, BigDecimal.valueOf(50));
-
+            printingPress.printAnItem(true, crimeAndPunishment, PaperType.GLOSSY, BigDecimal.valueOf(50));
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -144,15 +135,13 @@ public class DemoEngine implements IEngine {
         printingPress.loadPaper(500);
 
         try {
-            printingPress.printItems(true, crimeAndPunishment,PaperType.GLOSSY, BigDecimal.valueOf(50), 2);
-
+            printingPress.printItems(true, crimeAndPunishment, PaperType.GLOSSY, BigDecimal.valueOf(50), 2);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
 
         try {
             printingPress.printAnItem(true, crimeAndPunishment, PaperType.GLOSSY, BigDecimal.valueOf(50));
-
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -161,6 +150,16 @@ public class DemoEngine implements IEngine {
             System.out.println(edition + ": " + printingPress.getPrintedItems().get(edition));
         }
 
-    }
+        // Serialize the PrintHouse object
+        serializationServicePrintHouse = new SerializationService<>("printhouse.ser");
+        serializationServicePrintHouse.serialize(printHouse);
 
+        // Deserialize the PrintHouse object
+        try {
+            var printHouseDeserialized = serializationServicePrintHouse.deserializeSingleObject();
+            System.out.println(printHouseDeserialized.toString());
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
+    }
 }

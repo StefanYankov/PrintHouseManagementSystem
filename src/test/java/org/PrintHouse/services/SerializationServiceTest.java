@@ -31,7 +31,7 @@ public class SerializationServiceTest {
     }
 
     @Test
-    public void serializeSingleObjectWithValidEntityShouldSerializeAndDeserializeCorrectly() {
+    public void Serialize_WhenSingleObjectIsSerialized_ItShouldBeDeserializedCorrectly() {
         TestSerializableEntity entity = new TestSerializableEntity(1, "Test");
         serializationService.serialize(entity);
 
@@ -42,7 +42,7 @@ public class SerializationServiceTest {
     }
 
     @Test
-    public void serializeListWithValidEntitiesShouldSerializeAndDeserializeListCorrectly() {
+    public void Serialize_WhenListOfObjectsIsSerialized_ItShouldBeDeserializedCorrectly() {
         List<TestSerializableEntity> entities = new ArrayList<>();
         entities.add(new TestSerializableEntity(1, "Entity1"));
         entities.add(new TestSerializableEntity(2, "Entity2"));
@@ -66,6 +66,8 @@ public class SerializationServiceTest {
         SerializationService<TestSerializableEntity> newService = new SerializationService<>("non_existent.dat");
         assertTrue(newService.deserialize().isEmpty()); // Should return an empty list
     }
+
+
 
     static class TestSerializableEntity implements ISerializable, java.io.Serializable {
         private final int id;

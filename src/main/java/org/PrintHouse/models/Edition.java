@@ -1,13 +1,13 @@
 package org.PrintHouse.models;
 
 import org.PrintHouse.models.Contracts.IEdition;
-import org.PrintHouse.utilities.contracts.ISerializable;
 import org.PrintHouse.utilities.exceptions.InvalidNumberOfPagesException;
 import org.PrintHouse.utilities.exceptions.InvalidPageSizeException;
 import org.PrintHouse.utilities.exceptions.InvalidTitleException;
 import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 import org.PrintHouse.utilities.globalconstants.ModelsConstants;
 
+import java.io.Serial;
 import java.text.MessageFormat;
 
 /**
@@ -16,9 +16,11 @@ import java.text.MessageFormat;
  *
  * @param <S> The enum type representing the size of the Edition.
  */
-public class Edition<S extends Enum<S>> implements IEdition<S>, ISerializable {
+public class Edition<S extends Enum<S>> implements IEdition<S> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
+
     /**
      * The title of the Edition.
      */

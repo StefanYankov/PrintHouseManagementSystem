@@ -7,6 +7,7 @@ import org.PrintHouse.utilities.exceptions.InvalidPriceException;
 import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 import org.PrintHouse.utilities.globalconstants.ModelsConstants;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 
@@ -17,6 +18,9 @@ import java.text.MessageFormat;
  * @param <S> The enum type representing the size of the Edition.
  */
 public class PrintedItem<P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintedItem<P, S> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * The edition associated with this printed item.

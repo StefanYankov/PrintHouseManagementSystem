@@ -5,7 +5,9 @@ import org.PrintHouse.utilities.contracts.ISerializable;
 import org.PrintHouse.utilities.exceptions.*;
 import org.PrintHouse.utilities.globalconstants.ExceptionMessages;
 
+import java.io.Serial;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,9 @@ import java.util.List;
  * @param <S> Paper size type, extending Enum to define supported sizes for printing.
  */
 public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S extends Enum<S>> implements IPrintHouse<T, P, S>, ISerializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final List<IEmployable<T>> employees;
     private final List<IPrintingPress<P, S>> printingPressList;
 
@@ -70,10 +75,10 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
     @Override
     public void addEmployee(IEmployable<T> employee) {
 
-        if (employee == null){
+        if (employee == null) {
             throw new InvalidEmployeeException(ExceptionMessages.EMPLOYEE_CANNOT_BE_NULL);
         }
-        if (employees.contains(employee)){
+        if (employees.contains(employee)) {
             throw new InvalidEmployeeException(ExceptionMessages.EMPLOYEE_IS_ALREADY_ADDED_IN_PRINT_HOUSE);
         }
         employee.setBaseSalary(this.baseSalary);
@@ -250,7 +255,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
             var size = item.getEdition().getSize();
             var type = item.getPaperType();
             var pageCount = item.getEdition().getNumberOfPages();
-            var currentItemCost = this.getCostForSpecificPageSizeAndType(type,  size, pageCount);
+            var currentItemCost = this.getCostForSpecificPageSizeAndType(type, size, pageCount);
             var copies = BigDecimal.valueOf(items.get(item));
             totalCost = totalCost.add(currentItemCost).multiply(copies);
         }
@@ -302,7 +307,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
                     int count = printedItemWithCount.getValue();
                     BigDecimal itemPrice = printedItem.getPrice();
                     if (count > this.salesDiscountCount) {
-                        itemPrice = itemPrice.multiply(this.salesDiscountPercentage.divide(BigDecimal.valueOf(100)));
+                        itemPrice = itemPrice.multiply(this.salesDiscountPercentage.divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP));
                     }
                     return itemPrice.multiply(BigDecimal.valueOf(count));
                 })
@@ -371,7 +376,7 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
 
     // converts raw percentage - for example 10 - to an actual percentage that can be used in calculations - 10/100
     private BigDecimal incrementPercentageInPercent(BigDecimal paperIncrementPercentage) {
-        return paperIncrementPercentage.divide(BigDecimal.valueOf(100));
+        return paperIncrementPercentage.divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP);
     }
 
     /**
@@ -382,6 +387,21 @@ public class PrintHouse<T extends Enum<T>, P extends Enum<P> & IPaperTypes, S ex
      * @return the adjusted salary after applying the increment
      */
     private BigDecimal applySalaryIncrement(BigDecimal baseSalary, BigDecimal incrementPercentage) {
-        return baseSalary.multiply(BigDecimal.ONE.add(incrementPercentage.divide(BigDecimal.valueOf(100))));
+        return baseSalary.multiply(BigDecimal.ONE.add(incrementPercentage.divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP)));
+    }
+
+    @Override
+    public String toString() {
+        return "PrintHouse{" +
+                "employees=" + employees +
+                ", printingPressList=" + printingPressList +
+                ", employeeSalaryIncrementPercentage=" + employeeSalaryIncrementPercentage +
+                ", paperIncrementPercentage=" + paperIncrementPercentage +
+                ", incrementEligibleRoles=" + incrementEligibleRoles +
+                ", baseSalary=" + baseSalary +
+                ", revenueTarget=" + revenueTarget +
+                ", salesDiscountCount=" + salesDiscountCount +
+                ", salesDiscountPercentage=" + salesDiscountPercentage +
+                '}';
     }
 }
