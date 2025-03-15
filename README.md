@@ -223,7 +223,7 @@ Start the application from the main menu:
 
 ### Expanded Usage workflow
 
-For more detailed usage see the [USAGE.md](https://github.com/StefanYankov/PrintHouseManagementSystem/blob/master/USAGE)
+For more detailed usage see the [USAGE.md](https://github.com/StefanYankov/PrintHouseManagementSystem/blob/master/USAGE.md)
 
 ---
 
