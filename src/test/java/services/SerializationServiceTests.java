@@ -28,7 +28,6 @@ class SerializationServiceTests {
                 List.of(EmployeeType.MANAGER), BigDecimal.valueOf(5000), 10, BigDecimal.valueOf(5));
         String filePath = tempDir.resolve("test.ser").toString();
         service.serialize(List.of(ph), filePath);
-        // Verification as in original
     }
 
     @Test

@@ -91,21 +91,21 @@ public class PrintHouseController {
     }
 
     private void addNewPrintHouse() {
-        BigDecimal salaryIncrement = getBigDecimalInput("Salary increment %: ", true);
+        BigDecimal salaryIncrement = getBigDecimalInput("Salary increment %: ", false);
         if (salaryIncrement == null) {
             return;
         }
 
-        BigDecimal paperIncrement = getBigDecimalInput("Paper increment %: ", true);
+        BigDecimal paperIncrement = getBigDecimalInput("Paper increment %: ", false);
         if (paperIncrement == null) return;
-        BigDecimal baseSalary = getBigDecimalInput("Base salary: ", true);
+        BigDecimal baseSalary = getBigDecimalInput("Base salary: ", false);
         if (baseSalary == null) return;
         List<EmployeeType> eligibleRoles = List.of(EmployeeType.MANAGER);
-        BigDecimal revenueTarget = getBigDecimalInput("Revenue target: ", true);
+        BigDecimal revenueTarget = getBigDecimalInput("Revenue target: ", false);
         if (revenueTarget == null) return;
-        int discountCount = getIntInput("Discount count: ", true);
+        int discountCount = getIntInput("Discount count: ", false);
         if (discountCount == -1) return;
-        BigDecimal discountPercent = getBigDecimalInput("Discount %: ", true);
+        BigDecimal discountPercent = getBigDecimalInput("Discount %: ", false);
         if (discountPercent == null) return;
 
         logger.info("Creating new print house with parameters: salaryIncrement={}, paperIncrement={}, baseSalary={}, revenueTarget={}, discountCount={}, discountPercent={}",
@@ -126,13 +126,13 @@ public class PrintHouseController {
         }
         PrintHouse current = service.getPrintHouse(index);
         System.out.println("Current: " + current);
-        BigDecimal salaryIncrement = getOptionalBigDecimalInput("New salary increment % (leave blank to keep " + current.getEmployeeSalaryIncrementPercentage() + "): ", true);
-        BigDecimal paperIncrement = getOptionalBigDecimalInput("New paper increment % (leave blank to keep " + current.getPaperIncrementPercentage() + "): ", true);
-        BigDecimal baseSalary = getOptionalBigDecimalInput("New base salary (leave blank to keep " + current.getBaseSalary() + "): ", true);
+        BigDecimal salaryIncrement = getOptionalBigDecimalInput("New salary increment % (leave blank to keep " + current.getEmployeeSalaryIncrementPercentage() + "): ", false);
+        BigDecimal paperIncrement = getOptionalBigDecimalInput("New paper increment % (leave blank to keep " + current.getPaperIncrementPercentage() + "): ", false);
+        BigDecimal baseSalary = getOptionalBigDecimalInput("New base salary (leave blank to keep " + current.getBaseSalary() + "): ", false);
         List<EmployeeType> eligibleRoles = getOptionalEligibleRoles("New eligible roles (comma-separated OPERATOR/MANAGER, leave blank to keep " + current.getIncrementEligibleRoles() + "): ");
-        BigDecimal revenueTarget = getOptionalBigDecimalInput("New revenue target (leave blank to keep " + current.getRevenueTarget() + "): ", true);
-        Integer discountCount = getOptionalIntInput("New discount count (leave blank to keep " + current.getSalesDiscountCount() + "): ", true);
-        BigDecimal discountPercent = getOptionalBigDecimalInput("New discount % (leave blank to keep " + current.getSalesDiscountPercentage() + "): ", true);
+        BigDecimal revenueTarget = getOptionalBigDecimalInput("New revenue target (leave blank to keep " + current.getRevenueTarget() + "): ", false);
+        Integer discountCount = getOptionalIntInput("New discount count (leave blank to keep " + current.getSalesDiscountCount() + "): ", false);
+        BigDecimal discountPercent = getOptionalBigDecimalInput("New discount % (leave blank to keep " + current.getSalesDiscountPercentage() + "): ", false);
 
         service.updatePrintHouse(index, salaryIncrement, paperIncrement, baseSalary, eligibleRoles, revenueTarget, discountCount, discountPercent);
         System.out.println("Print house updated successfully.");
@@ -181,6 +181,9 @@ public class PrintHouseController {
         } catch (NumberFormatException e) {
             logger.warn("Invalid menu input received: {}", e.getMessage());
             return -1;
+        }  catch (Exception e) {
+            System.out.println("An error occurred, please try again.");
+            return -1;
         }
     }
 
@@ -195,6 +198,9 @@ public class PrintHouseController {
             return value;
         } catch (NumberFormatException e) {
             System.out.println("Invalid number.");
+            return -1;
+        } catch (Exception e) {
+            System.out.println("An error occurred, please try again.");
             return -1;
         }
     }
@@ -239,7 +245,7 @@ public class PrintHouseController {
             int value = Integer.parseInt(input);
             if (!allowNegative && value < 0) {
                 System.out.println("Value cannot be negative.");
-                return null; // Changed from -1 to null for consistency
+                return null;
             }
             return value;
         } catch (NumberFormatException e) {

@@ -230,7 +230,7 @@ public class EditionServiceTests {
     @Test
     void removeEdition_EditionNotInPrintHouse_DoesNotThrow() {
         Edition unknownEdition = new Edition("The Hobbit", 300, Size.A5);
-        service.removeEdition(printHouse, unknownEdition); // Logs warning, no throw
+        service.removeEdition(printHouse, unknownEdition);
         assertTrue(service.getEditions(printHouse).isEmpty());
     }
 

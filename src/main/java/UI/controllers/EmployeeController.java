@@ -4,6 +4,7 @@ import data.models.*;
 import services.contracts.IEmployeeService;
 import services.contracts.IPrintHouseService;
 import services.contracts.IPrintingPressService;
+import utilities.EgnValidator;
 import utilities.exceptions.InvalidEmployeeException;
 import utilities.globalconstants.ExceptionMessages;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -62,12 +64,21 @@ public class EmployeeController {
 
     private int getUserChoice() {
         try {
+            if (!scanner.hasNextLine()) {
+                logger.warn("No input available");
+                System.out.println("Input error. Please try again.");
+                return -1;
+            }
             int choice = Integer.parseInt(scanner.nextLine().trim());
             logger.debug("User choice: {}", choice);
             return choice;
         } catch (NumberFormatException e) {
-            logger.warn("Invalid choice input: {}", e.getMessage());
+            logger.warn("Invalid input: {}", e.getMessage());
             System.out.println("Invalid input. Please enter a number.");
+            return -1;
+        } catch (NoSuchElementException e) {
+            logger.error("Failed to read input: {}", e.getMessage(), e);
+            System.out.println("Input error. Please try again.");
             return -1;
         }
     }
@@ -94,18 +105,25 @@ public class EmployeeController {
     private void addEmployee() {
         PrintHouse printHouse = selectPrintHouse();
         if (printHouse == null) return;
-        System.out.print("Enter employee ЕГН (10 digits): ");
+        System.out.print("Enter employee EGN (10 digits): ");
         String egn = scanner.nextLine().trim();
+
+        if (!EgnValidator.isValidEGN(egn)){
+            logger.error("Invalid EGN: {}", egn);
+            System.out.println("Invalid EGN");
+            return;
+        }
+
         String typeInput = getEnumInput("Employee type (OPERATOR/MANAGER): ", EmployeeType.class);
         if (typeInput == null) return;
         Employee employee = new Employee(egn, EmployeeType.valueOf(typeInput));
         try {
             employeeService.addEmployee(printHouse, employee);
             System.out.println("Employee added.");
-            logger.info("Added employee with ЕГН {} of type {}", egn, typeInput);
+            logger.info("Added employee with EGN {} of type {}", egn, typeInput);
         } catch (InvalidEmployeeException e) {
             System.out.println("Error: " + e.getMessage());
-            logger.warn("Failed to add employee with ЕГН {}: {}", egn, e.getMessage());
+            logger.warn("Failed to add employee with EGN {}: {}", egn, e.getMessage());
         }
     }
 

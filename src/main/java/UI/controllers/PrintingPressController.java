@@ -4,6 +4,7 @@ import data.models.*;
 import services.contracts.IEditionService;
 import services.contracts.IPrintHouseService;
 import services.contracts.IPrintingPressService;
+import utilities.exceptions.InvalidPaperLoadException;
 import utilities.globalconstants.ExceptionMessages;
 import utilities.globalconstants.ModelsConstants;
 import org.slf4j.Logger;
@@ -50,15 +51,16 @@ public class PrintingPressController {
     }
 
     private void displayMenu() {
-        System.out.println("\n--- Printing Press Management ---");
+        System.out.println(System.lineSeparator() + "--- Printing Press Management ---" + System.lineSeparator());
         System.out.println("1. Add a printing press");
         System.out.println("2. Remove a printing press");
         System.out.println("3. Update a printing press");
-        System.out.println("4. Load paper into press");
-        System.out.println("5. Print an item");
-        System.out.println("6. Calculate total print cost");
-        System.out.println("7. Calculate total revenue");
-        System.out.println("8. Calculate total printed pages");
+        System.out.println("4. Show all printing presses");
+        System.out.println("5. Load paper into press");
+        System.out.println("6. Print an item");
+        System.out.println("7. Calculate total print cost");
+        System.out.println("8. Calculate total revenue");
+        System.out.println("9. Calculate total printed pages");
         System.out.println("0. Back to main menu");
         System.out.print("Enter your choice: ");
         logger.debug("Displayed printing press menu");
@@ -82,11 +84,12 @@ public class PrintingPressController {
                 case 1 -> addPrintingPress();
                 case 2 -> removePrintingPress();
                 case 3 -> updatePrintingPress();
-                case 4 -> loadPaper();
-                case 5 -> printItem();
-                case 6 -> calculateTotalPrintCost();
-                case 7 -> calculateTotalRevenue();
-                case 8 -> calculateTotalPrintedPages();
+                case 4 -> showAllPrintingPresses();
+                case 5 -> loadPaper();
+                case 6 -> printItem();
+                case 7 -> calculateTotalPrintCost();
+                case 8 -> calculateTotalRevenue();
+                case 9 -> calculateTotalPrintedPages();
                 default -> {
                     logger.warn("Invalid choice: {}", choice);
                     System.out.println("Invalid choice.");
@@ -137,6 +140,19 @@ public class PrintingPressController {
         printingPressService.updatePrintingPress(printHouse, press, maxLoad, currentLoad, isColour, maxPages);
         System.out.println("Printing press updated.");
         logger.info("Updated printing press: {}", press);
+    }
+
+    private void showAllPrintingPresses(){
+        PrintHouse printHouse = selectPrintHouse();
+        if (printHouse == null) return;
+        List<PrintingPress> presses = printHouse.getPrintingPresses();
+        if (presses.isEmpty()) {
+            System.out.println("No printing presses found.");
+            logger.info("No printing presses in PrintHouse {}", printHouse);
+        } else {
+            presses.forEach(System.out::println);
+            logger.info("Displayed all printing presses for PrintHouse {}", printHouse);
+        }
     }
 
     private void loadPaper() {
@@ -208,8 +224,11 @@ public class PrintingPressController {
             printingPressService.printItem(printHouse, press, edition, paperType, pricePerCopy, copies, isColour);
             System.out.println("Item printed successfully.");
             logger.info("Printed {} copies of edition {} on press {}", copies, edition, press);
+        } catch (InvalidPaperLoadException e) {
+            System.out.println("Insufficient paper load. Please reload the printing press and try again ");
+            logger.error("Failed to print item: {}", e.getMessage(), e);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Something went wrong! Please try again");
             logger.error("Failed to print item: {}", e.getMessage(), e);
         }
     }

@@ -81,6 +81,10 @@ public class ConsoleEngine implements IEngine {
             logger.warn("Invalid input: {}", e.getMessage());
             System.out.println("Invalid input. Please enter a number.");
             return -1;
+        } catch (Exception e){
+            logger.warn("Something went wrong: {}", e.getMessage());
+            System.out.println("Something went wrong. Please try again.");
+            return -1;
         }
     }
 

@@ -3,14 +3,13 @@ package services;
 import data.models.*;
 import services.contracts.IEmployeeService;
 import services.contracts.IPrintingPressService;
+import utilities.EgnValidator;
 import utilities.exceptions.*;
 import utilities.globalconstants.ExceptionMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +50,8 @@ public class EmployeeService implements IEmployeeService {
         }
 
         if (!updatedEmployee.getEgn().equals(existingEmployee.getEgn())) {
-            logger.error("Cannot change ЕГН from {} to {}", existingEmployee.getEgn(), updatedEmployee.getEgn());
-            throw new InvalidEmployeeException("ЕГН cannot be modified");
+            logger.error("Cannot change EGN from {} to {}", existingEmployee.getEgn(), updatedEmployee.getEgn());
+            throw new InvalidEmployeeException("EGN cannot be modified");
         }
 
         existingEmployee.setEmployeeType(updatedEmployee.getEmployeeType());
@@ -112,53 +111,20 @@ public class EmployeeService implements IEmployeeService {
 
     private void validateEmployee(Employee employee, PrintHouse printHouse) {
         if (employee == null || employee.getEmployeeType() == null || employee.getEgn() == null) {
-            logger.error("Employee, type, or ЕГН cannot be null");
-            throw new InvalidEmployeeException("Employee, type, or ЕГН cannot be null");
+            logger.error("Employee, type, or EGN cannot be null");
+            throw new InvalidEmployeeException("Employee, type, or EGN cannot be null");
         }
 
         String egn = employee.getEgn();
-        String egnPattern = "[0-9]{2}[0,1,2,4][0-9][0-9]{2}[0-9]{4}";
-        if (!egn.matches(egnPattern)) {
-            logger.error("ЕГН must follow YY[0,1,2,4]MDDSSSC format: {}", egn);
-            throw new InvalidEmployeeException("Invalid ЕГН format");
-        }
 
-        int year = Integer.parseInt(egn.substring(0, 2));
-        int month = Integer.parseInt(egn.substring(2, 4));
-        int day = Integer.parseInt(egn.substring(4, 6));
-
-        if (month > 40) {
-            month -= 40;
-            year += 2000;
-        } else if (month > 20) {
-            month -= 20;
-            year += 1800;
-        } else {
-            year += 1900;
-        }
-
-        try {
-            LocalDate.of(year, month, day);
-        } catch (DateTimeException e) {
-            logger.error("Invalid date in ЕГН: {}", egn);
-            throw new InvalidEmployeeException("Invalid date in ЕГН");
-        }
-
-        int[] weights = {2, 4, 8, 5, 10, 9, 7, 3, 6};
-        int sum = 0;
-        for (int i = 0; i < 9; i++) {
-            sum += (egn.charAt(i) - '0') * weights[i];
-        }
-        int checksum = sum % 11;
-        if (checksum == 10) checksum = 0;
-        if (checksum != (egn.charAt(9) - '0')) {
-            logger.error("Invalid ЕГН checksum: {}", egn);
-            throw new InvalidEmployeeException("Invalid ЕГН checksum");
+        if (!EgnValidator.isValidEGN(egn)) {
+            logger.error("Invalid EGN: {}", employee.getEgn());
+            throw new InvalidEmployeeException("Invalid EGN");
         }
 
         if (printHouse.getEmployees().stream().anyMatch(e -> e.getEgn().equals(egn))) {
-            logger.warn("Employee with ЕГН {} already exists in PrintHouse {}", egn, printHouse);
-            throw new InvalidEmployeeException("Employee with this ЕГН already exists");
+            logger.warn("Employee with EGN {} already exists in PrintHouse {}", egn, printHouse);
+            throw new InvalidEmployeeException("Employee with this EGN already exists");
         }
     }
 }
