@@ -122,8 +122,11 @@ public class EmployeeController {
             System.out.println("Employee added.");
             logger.info("Added employee with EGN {} of type {}", egn, typeInput);
         } catch (InvalidEmployeeException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Employee with this EGN already exists");
             logger.warn("Failed to add employee with EGN {}: {}", egn, e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Something went wrong. Please try again");
+            logger.error("Failed to add employee with EGN {}: {}", egn, e.getMessage());
         }
     }
 
@@ -144,8 +147,11 @@ public class EmployeeController {
             System.out.println("Employee removed.");
             logger.info("Removed employee at index: {}", index);
         } catch (InvalidEmployeeException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Failed to remove employee at index:" + index);
             logger.warn("Failed to remove employee at index {}: {}", index, e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Something went wrong. Please try again");
+            logger.error("Failed to remove employee at index {}: {}", index, e.getMessage());
         }
     }
 
@@ -170,7 +176,10 @@ public class EmployeeController {
             System.out.println("Employee updated.");
             logger.info("Updated employee at index {}: {}", index, updatedEmployee);
         } catch (InvalidEmployeeException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Failed to update employee at index:" + index);
+            logger.warn("Failed to update employee at index {}: {}", index, e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Something went wrong. Please try again");
             logger.warn("Failed to update employee at index {}: {}", index, e.getMessage());
         }
     }
