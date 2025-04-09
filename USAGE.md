@@ -12,7 +12,6 @@
   - Salary increment %: `15`
   - Paper increment %: `20`
   - Base salary: `2500`
-  - Increment eligible roles: `MANAGER`
   - Revenue target: `10000`
   - Discount count: `10`
   - Discount %: `10`
@@ -95,7 +94,7 @@
 
   - Menu selection: `2` (Manage Employees) → `1` (Add an employee)
   - Print house index: `1` (index 0)
-  - ЕГН: `8003050024`
+  - ЕГН: `6907167565`
   - Employee type: `MANAGER`
 - **Expected Output:**
 
