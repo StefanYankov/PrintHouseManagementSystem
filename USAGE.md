@@ -12,7 +12,6 @@
   - Salary increment %: `15`
   - Paper increment %: `20`
   - Base salary: `2500`
-  - Increment eligible roles: `MANAGER`
   - Revenue target: `10000`
   - Discount count: `10`
   - Discount %: `10`
