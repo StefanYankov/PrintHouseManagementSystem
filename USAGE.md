@@ -95,7 +95,7 @@
 
   - Menu selection: `2` (Manage Employees) → `1` (Add an employee)
   - Print house index: `1` (index 0)
-  - ЕГН: `8003050024`
+  - ЕГН: `6907167565`
   - Employee type: `MANAGER`
 - **Expected Output:**
 
