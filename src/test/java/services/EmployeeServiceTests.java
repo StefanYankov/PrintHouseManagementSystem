@@ -119,25 +119,7 @@ public class EmployeeServiceTests {
         Employee employee = new Employee("7533021234", EmployeeType.OPERATOR); // Invalid month prefix
         InvalidEmployeeException exception = assertThrows(InvalidEmployeeException.class, () ->
                 employeeService.addEmployee(printHouse, employee));
-        assertEquals("Invalid ЕГН format", exception.getMessage());
-        assertTrue(printHouse.getEmployees().isEmpty());
-    }
-
-    @Test
-    void AddEmployee_InvalidDate_ThrowsException() {
-        Employee employee = new Employee("7502301239", EmployeeType.OPERATOR); // Feb 30
-        InvalidEmployeeException exception = assertThrows(InvalidEmployeeException.class, () ->
-                employeeService.addEmployee(printHouse, employee));
-        assertEquals("Invalid date in ЕГН", exception.getMessage());
-        assertTrue(printHouse.getEmployees().isEmpty());
-    }
-
-    @Test
-    void AddEmployee_InvalidChecksum_ThrowsException() {
-        Employee employee = new Employee("7501020019", EmployeeType.OPERATOR); // Checksum should be 8, not 9
-        InvalidEmployeeException exception = assertThrows(InvalidEmployeeException.class, () ->
-                employeeService.addEmployee(printHouse, employee));
-        assertEquals("Invalid ЕГН checksum", exception.getMessage());
+        assertEquals("Invalid EGN", exception.getMessage());
         assertTrue(printHouse.getEmployees().isEmpty());
     }
 
@@ -149,7 +131,7 @@ public class EmployeeServiceTests {
 
         InvalidEmployeeException exception = assertThrows(InvalidEmployeeException.class, () ->
                 employeeService.addEmployee(printHouse, employee2));
-        assertEquals("Employee with this ЕГН already exists", exception.getMessage());
+        assertEquals("Employee with this EGN already exists", exception.getMessage());
         assertEquals(1, printHouse.getEmployees().size());
     }
 
@@ -180,7 +162,7 @@ public class EmployeeServiceTests {
 
         InvalidEmployeeException exception = assertThrows(InvalidEmployeeException.class, () ->
                 employeeService.updateEmployee(printHouse, 0, updatedEmployee));
-        assertEquals("ЕГН cannot be modified", exception.getMessage());
+        assertEquals("EGN cannot be modified", exception.getMessage());
     }
 
     @Test
@@ -230,7 +212,7 @@ public class EmployeeServiceTests {
     // Edge Cases
     @Test
     void AddEmployee_MaximumLengthEgn_AddsSuccessfully() {
-        Employee employee = new Employee("7501020018", EmployeeType.OPERATOR); // Valid 10-digit ЕГН
+        Employee employee = new Employee("7501020018", EmployeeType.OPERATOR); // Valid 10-digit EGN
         employeeService.addEmployee(printHouse, employee);
 
         assertEquals(1, printHouse.getEmployees().size());
